@@ -1,0 +1,7 @@
+databaseChangeLog:
+  - include:
+      file: 2026-10-18-001-create-user.sql
+      relativeToChangelogFile: true
+  - include:
+      file: 2026-10-18-002-seed-demo-users.sql
+      relativeToChangelogFile: true
