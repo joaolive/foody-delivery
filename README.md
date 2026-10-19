@@ -60,8 +60,10 @@ O login em `POST /auth/login` recebe e-mail e senha e retorna um JWT. O frontend
 Execute no devcontainer, após gerar as chaves RSA:
 
 ```bash
-cd backend && ./mvnw test
+cd backend && ./mvnw verify
 ```
+
+O JaCoCo inclui os testes unitários e de integração e gera o relatório HTML em `backend/target/site/jacoco/index.html`, além de XML e CSV no mesmo diretório. Não há meta global de cobertura: o relatório serve para identificar regras importantes ainda sem teste.
 
 ```bash
 cd frontend && npm run build && npm run lint && npm run format:check
