@@ -7,7 +7,6 @@ import { AdminOrdersPage } from "@/pages/admin-orders-page";
 import { LoginPage } from "@/pages/login-page";
 import { NewOrderPage } from "@/pages/new-order-page";
 import { OrdersPage } from "@/pages/orders-page";
-import { ProductsPage } from "@/pages/products-page";
 import { RegisterPage } from "@/pages/register-page";
 
 function RootRedirect() {
@@ -34,14 +33,6 @@ function App() {
           <Route path="/" element={<RootRedirect />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
-          <Route
-            path="/products"
-            element={
-              <ProtectedRoute>
-                <ProductsPage />
-              </ProtectedRoute>
-            }
-          />
           <Route
             path="/orders"
             element={

@@ -14,14 +14,10 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   const navigation =
     session.user.role === "ADMIN"
-      ? [
-          { path: "/admin/orders", label: "Pedidos" },
-          { path: "/products", label: "Produtos" },
-        ]
+      ? [{ path: "/admin/orders", label: "Pedidos" }]
       : [
           { path: "/orders", label: "Meus pedidos" },
           { path: "/orders/new", label: "Novo pedido" },
-          { path: "/products", label: "Produtos" },
         ];
 
   return (
