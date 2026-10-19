@@ -2,8 +2,7 @@ import type { ReactNode } from "react";
 import { Link, NavLink } from "react-router";
 
 import { BrandMark } from "@/components/common/brand-mark";
-import { ThemeToggle } from "@/components/common/theme-toggle";
-import { Button } from "@/components/ui/button";
+import { UserMenu } from "@/components/common/user-menu";
 import { useAuth } from "@/features/auth/hooks/use-auth";
 import { homePath } from "@/features/auth/lib/routes";
 import { cn } from "@/lib/utils";
@@ -53,14 +52,8 @@ export function AppShell({ children }: { children: ReactNode }) {
               </NavLink>
             ))}
           </nav>
-          <div className="ml-auto flex items-center gap-2 sm:gap-3">
-            <span className="hidden border-r pr-4 text-sm font-medium text-foreground xl:inline">
-              {session.user.name}
-            </span>
-            <ThemeToggle />
-            <Button type="button" variant="outline" onClick={signOut}>
-              Sair
-            </Button>
+          <div className="ml-auto">
+            <UserMenu user={session.user} onSignOut={signOut} />
           </div>
         </div>
       </header>

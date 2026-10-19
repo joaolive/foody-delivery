@@ -12,6 +12,7 @@ import {
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
@@ -119,16 +120,18 @@ export function AdminOrderCard({
               <ChevronDown aria-hidden="true" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="min-w-48">
-              <DropdownMenuLabel>Novo status</DropdownMenuLabel>
-              {transitions.map((status) => (
-                <DropdownMenuItem
-                  key={status}
-                  variant={status === "CANCELED" ? "destructive" : "default"}
-                  onClick={() => onStatusChange(order, status)}
-                >
-                  {orderStatusLabels[status]}
-                </DropdownMenuItem>
-              ))}
+              <DropdownMenuGroup>
+                <DropdownMenuLabel>Novo status</DropdownMenuLabel>
+                {transitions.map((status) => (
+                  <DropdownMenuItem
+                    key={status}
+                    variant={status === "CANCELED" ? "destructive" : "default"}
+                    onClick={() => onStatusChange(order, status)}
+                  >
+                    {orderStatusLabels[status]}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuGroup>
             </DropdownMenuContent>
           </DropdownMenu>
         ) : null}
