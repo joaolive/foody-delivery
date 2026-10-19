@@ -1,27 +1,56 @@
-import { useState } from "react";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router";
 
-import { Button } from "@/components/ui/button";
+import { AuthProvider } from "@/features/auth/components/auth-provider";
+import { ProtectedRoute } from "@/features/auth/components/protected-route";
+import { useAuth } from "@/features/auth/hooks/use-auth";
+import { HomePage } from "@/pages/home-page";
+import { LoginPage } from "@/pages/login-page";
+import { RegisterPage } from "@/pages/register-page";
+
+function RootRedirect() {
+  const { session } = useAuth();
+  return (
+    <Navigate
+      to={
+        session?.user.role === "ADMIN"
+          ? "/admin/orders"
+          : session
+            ? "/orders"
+            : "/login"
+      }
+      replace
+    />
+  );
+}
 
 function App() {
-  const [clicks, setClicks] = useState(0);
-
   return (
-    <main className="flex min-h-svh items-center justify-center bg-background px-6">
-      <div className="flex w-full max-w-sm flex-col items-start gap-4">
-        <p className="text-sm font-medium text-muted-foreground">
-          Foody Delivery
-        </p>
-        <h1 className="text-3xl font-semibold tracking-tight">
-          Frontend is ready
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          Vite, React, TypeScript, Tailwind CSS, and shadcn/ui are configured.
-        </p>
-        <Button onClick={() => setClicks((value) => value + 1)}>
-          Test button: {clicks}
-        </Button>
-      </div>
-    </main>
+    <BrowserRouter>
+      <AuthProvider>
+        <Routes>
+          <Route path="/" element={<RootRedirect />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route
+            path="/orders"
+            element={
+              <ProtectedRoute role="CLIENT">
+                <HomePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/orders"
+            element={
+              <ProtectedRoute role="ADMIN">
+                <HomePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="*" element={<RootRedirect />} />
+        </Routes>
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
 

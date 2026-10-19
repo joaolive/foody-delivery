@@ -1,6 +1,7 @@
 package com.joaolive.foody_delivery.common;
 
 import com.joaolive.foody_delivery.auth.web.InvalidUserIdentityException;
+import com.joaolive.foody_delivery.auth.InvalidCredentialsException;
 import com.joaolive.foody_delivery.order.InvalidOrderStatusTransitionException;
 import com.joaolive.foody_delivery.user.EmailAlreadyExistsException;
 import java.net.URI;
@@ -19,6 +20,14 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+	@ExceptionHandler(InvalidCredentialsException.class)
+	public ProblemDetail handleInvalidCredentials(InvalidCredentialsException ex) {
+		ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, ex.getMessage());
+		problemDetail.setTitle("Unauthorized");
+		problemDetail.setProperty("timestamp", Instant.now());
+		return problemDetail;
+	}
+
 	@ExceptionHandler(ResourceNotFoundException.class)
 	public ProblemDetail handleResourceNotFound(ResourceNotFoundException ex) {
 		ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
