@@ -3,6 +3,15 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      try {
+        if (localStorage.getItem("foody-theme") === "dark") {
+          document.documentElement.classList.add("dark");
+        }
+      } catch {
+        // Keep the light default when storage is unavailable.
+      }
+    </script>
     <title>Foody Delivery</title>
   </head>
   <body>

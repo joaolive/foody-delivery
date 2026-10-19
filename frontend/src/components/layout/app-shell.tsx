@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Link } from "react-router";
 
+import { ThemeToggle } from "@/components/common/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/features/auth/hooks/use-auth";
 import { homePath } from "@/features/auth/lib/routes";
@@ -27,7 +28,7 @@ export function AppShell({
         >
           <Link
             to={homePath(session.user.role)}
-            className="text-sm font-semibold tracking-tight"
+            className="text-sm font-bold tracking-tight text-primary"
           >
             Foody Delivery
           </Link>
@@ -41,6 +42,7 @@ export function AppShell({
             <span className="hidden text-sm text-muted-foreground sm:inline">
               {session.user.name}
             </span>
+            <ThemeToggle />
             <Button variant="outline" onClick={signOut}>
               Sair
             </Button>
