@@ -1,4 +1,4 @@
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, MapPin } from "lucide-react";
 
 import { buttonVariants } from "@/components/ui/button";
 import {
@@ -47,14 +47,17 @@ export function AdminOrderCard({
   const itemCount = orderItemCount(order);
 
   return (
-    <Card size="sm" className="gap-3 bg-card">
-      <CardHeader className="gap-3">
+    <Card
+      size="sm"
+      className="gap-3 rounded-xl bg-card shadow-sm ring-border/80"
+    >
+      <CardHeader className="gap-2">
         <div className="space-y-1">
-          <p className="text-xs font-semibold tracking-wider text-muted-foreground">
+          <p className="text-[0.7rem] font-bold tracking-[0.14em] text-muted-foreground uppercase">
             PEDIDO
           </p>
           <CardTitle>
-            <h3 className="text-base font-semibold" title={order.id}>
+            <h3 className="text-base font-bold tracking-tight" title={order.id}>
               #{order.id.slice(0, 8).toUpperCase()}
             </h3>
           </CardTitle>
@@ -63,20 +66,29 @@ export function AdminOrderCard({
           Criado em {formatDate(order.createdAt)}
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4 text-sm">
-        <div className="space-y-1">
-          <p className="text-xs font-medium text-muted-foreground">
-            Entrega em
-          </p>
-          <p className="leading-relaxed break-words">{order.address}</p>
+      <CardContent className="space-y-3 text-sm">
+        <div className="flex items-start gap-2 rounded-lg bg-muted/50 p-2.5">
+          <MapPin
+            aria-hidden="true"
+            className="mt-0.5 size-3.5 shrink-0 text-primary"
+          />
+          <div className="min-w-0 space-y-1">
+            <p className="text-xs font-medium text-muted-foreground">
+              Entrega em
+            </p>
+            <p className="leading-relaxed break-words">{order.address}</p>
+          </div>
         </div>
-        <div className="flex items-end justify-between gap-3">
+        <p className="text-xs text-muted-foreground">
+          Cliente #{order.clientId.slice(0, 8).toUpperCase()}
+        </p>
+        <div className="flex items-end justify-between gap-2 border-t pt-3">
           <p className="text-xs text-muted-foreground">
-            Cliente #{order.clientId.slice(0, 8).toUpperCase()}
-            <br />
             {itemCount} {itemCount === 1 ? "item" : "itens"}
           </p>
-          <p className="font-semibold">{formatCurrency(orderTotal(order))}</p>
+          <p className="font-bold text-primary tabular-nums">
+            {formatCurrency(orderTotal(order))}
+          </p>
         </div>
         {error && (
           <p role="alert" className="text-xs text-destructive">
@@ -84,15 +96,24 @@ export function AdminOrderCard({
           </p>
         )}
       </CardContent>
-      <CardFooter className="flex-wrap justify-between gap-3 bg-transparent">
-        <OrderStatusBadge status={order.status} />
+      <CardFooter className="flex-col items-stretch gap-3 bg-muted/20">
+        <div className="flex items-center justify-between gap-2">
+          <OrderStatusBadge status={order.status} />
+          {transitions.length === 0 && (
+            <span className="text-xs text-muted-foreground">Status final</span>
+          )}
+        </div>
         {transitions.length > 0 ? (
           <DropdownMenu>
             <DropdownMenuTrigger
               type="button"
               disabled={actionsDisabled}
               aria-label={`Alterar status do pedido ${order.id}`}
-              className={buttonVariants({ variant: "outline", size: "sm" })}
+              className={buttonVariants({
+                variant: "outline",
+                size: "sm",
+                className: "w-full justify-between bg-card",
+              })}
             >
               {pending ? "Atualizando..." : "Alterar status"}
               <ChevronDown aria-hidden="true" />
@@ -110,9 +131,7 @@ export function AdminOrderCard({
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
-        ) : (
-          <span className="text-xs text-muted-foreground">Status final</span>
-        )}
+        ) : null}
       </CardFooter>
     </Card>
   );

@@ -1,3 +1,4 @@
+import { CircleCheck, ShoppingBag } from "lucide-react";
 import { Link, useLocation } from "react-router";
 
 import { AppShell } from "@/components/layout/app-shell";
@@ -38,8 +39,9 @@ export function OrdersPage() {
         {created && (
           <p
             role="status"
-            className="rounded-lg border bg-muted/50 px-4 py-3 text-sm"
+            className="flex items-center gap-2 rounded-xl border border-emerald-500/25 bg-emerald-500/10 px-4 py-3 text-sm font-medium text-emerald-800 dark:text-emerald-300"
           >
+            <CircleCheck aria-hidden="true" className="size-4 shrink-0" />
             Pedido criado com sucesso.
           </p>
         )}
@@ -50,11 +52,15 @@ export function OrdersPage() {
           </p>
         )}
 
-        <div className="space-y-4">
-          {orders.map((order) => (
-            <OrderCard key={order.id} order={order} />
-          ))}
-        </div>
+        {orders.length > 0 && (
+          <ol className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+            {orders.map((order) => (
+              <li key={order.id}>
+                <OrderCard order={order} />
+              </li>
+            ))}
+          </ol>
+        )}
 
         {loading && (
           <p role="status" className="text-sm text-muted-foreground">
@@ -75,16 +81,20 @@ export function OrdersPage() {
         )}
 
         {!loading && !error && orders.length === 0 && (
-          <Card>
-            <CardContent className="space-y-3 py-8 text-center">
-              <h2 className="text-lg font-semibold">Nenhum pedido ainda</h2>
-              <p className="text-sm text-muted-foreground">
-                Escolha seus produtos e faça seu primeiro pedido.
-              </p>
-              <Link
-                to="/orders/new"
-                className={buttonVariants({ variant: "outline" })}
-              >
+          <Card className="mx-auto max-w-lg rounded-2xl shadow-sm ring-border/90">
+            <CardContent className="flex flex-col items-center gap-4 px-6 py-12 text-center">
+              <span className="flex size-14 items-center justify-center rounded-2xl bg-secondary text-primary">
+                <ShoppingBag aria-hidden="true" className="size-6" />
+              </span>
+              <div className="space-y-2">
+                <h2 className="text-xl font-bold tracking-tight">
+                  Seu primeiro pedido começa aqui
+                </h2>
+                <p className="text-sm leading-6 text-muted-foreground">
+                  Escolha seus produtos e acompanhe cada etapa da entrega.
+                </p>
+              </div>
+              <Link to="/orders/new" className={buttonVariants({ size: "lg" })}>
                 Fazer pedido
               </Link>
             </CardContent>

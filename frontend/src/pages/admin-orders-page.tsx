@@ -86,11 +86,18 @@ export function AdminOrdersPage() {
           }
         />
 
-        <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
-          <strong>
-            {orders.length} de {totalElements} pedidos carregados
-          </strong>
-          <span className="text-muted-foreground">Agrupados por status</span>
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b pb-4">
+          <p className="flex items-baseline gap-1.5">
+            <strong className="text-xl font-bold tabular-nums">
+              {orders.length}
+            </strong>
+            <span className="text-sm text-muted-foreground">
+              de {totalElements} pedidos carregados
+            </span>
+          </p>
+          <span className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+            Agrupados por status
+          </span>
         </div>
 
         <div role="region" aria-label="Quadro de pedidos por status">

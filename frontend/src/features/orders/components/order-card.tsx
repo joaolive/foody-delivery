@@ -1,3 +1,5 @@
+import { CalendarDays, MapPin } from "lucide-react";
+
 import {
   Card,
   CardContent,
@@ -18,30 +20,50 @@ export function OrderCard({ order }: { order: Order }) {
   const total = orderTotal(order);
 
   return (
-    <Card>
-      <CardHeader className="gap-3">
+    <Card className="h-full rounded-2xl shadow-sm ring-border/90">
+      <CardHeader className="gap-4">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="space-y-1">
+            <p className="text-xs font-bold tracking-[0.14em] text-muted-foreground uppercase">
+              Pedido
+            </p>
             <CardTitle>
-              <h2 className="text-base font-semibold" title={order.id}>
-                Pedido #{order.id.slice(0, 8).toUpperCase()}
+              <h2 className="text-lg font-bold tracking-tight" title={order.id}>
+                #{order.id.slice(0, 8).toUpperCase()}
               </h2>
             </CardTitle>
-            <CardDescription>{formatDate(order.createdAt)}</CardDescription>
           </div>
           <OrderStatusBadge status={order.status} />
         </div>
+        <CardDescription className="flex items-center gap-2 text-xs">
+          <CalendarDays aria-hidden="true" className="size-4" />
+          {formatDate(order.createdAt)}
+        </CardDescription>
       </CardHeader>
-      <CardContent className="flex flex-wrap items-end justify-between gap-4 text-sm">
-        <div className="space-y-2">
-          <p className="font-medium">Entrega em</p>
-          <p className="max-w-xl text-muted-foreground">{order.address}</p>
+      <CardContent className="mt-auto space-y-4 text-sm">
+        <div className="flex items-start gap-3 rounded-xl bg-muted/50 p-3.5">
+          <MapPin
+            aria-hidden="true"
+            className="mt-0.5 size-4 shrink-0 text-primary"
+          />
+          <div className="min-w-0 space-y-1">
+            <p className="text-xs font-semibold text-muted-foreground">
+              Entrega em
+            </p>
+            <p className="leading-relaxed break-words">{order.address}</p>
+          </div>
         </div>
-        <div className="text-right">
-          <p className="text-muted-foreground">
-            {itemCount} {itemCount === 1 ? "item" : "itens"}
-          </p>
-          <p className="font-semibold">{formatCurrency(total)}</p>
+        <div className="flex items-end justify-between gap-4 border-t pt-4">
+          <div className="space-y-1">
+            <p className="text-xs text-muted-foreground">Itens</p>
+            <p className="font-semibold tabular-nums">{itemCount}</p>
+          </div>
+          <div className="space-y-1 text-right">
+            <p className="text-xs text-muted-foreground">Total</p>
+            <p className="text-base font-bold text-primary tabular-nums">
+              {formatCurrency(total)}
+            </p>
+          </div>
         </div>
       </CardContent>
     </Card>
