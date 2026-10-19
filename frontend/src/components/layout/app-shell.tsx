@@ -1,14 +1,25 @@
 import type { ReactNode } from "react";
-import { Link, NavLink } from "react-router";
+import { Menu } from "lucide-react";
+import { Link, NavLink, useLocation, useNavigate } from "react-router";
 
 import { BrandMark } from "@/components/common/brand-mark";
 import { UserMenu } from "@/components/common/user-menu";
+import { buttonVariants } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/features/auth/hooks/use-auth";
 import { homePath } from "@/features/auth/lib/routes";
 import { cn } from "@/lib/utils";
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { session, signOut } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
   if (!session) return null;
 
   const navigation =
@@ -22,7 +33,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-svh bg-background">
       <header className="border-b bg-card/95 shadow-[0_1px_0_0_var(--border)] backdrop-blur-sm">
-        <div className="mx-auto flex max-w-[90rem] flex-wrap items-center gap-x-5 gap-y-3 px-4 py-3 sm:px-6">
+        <div className="mx-auto flex max-w-[90rem] items-center gap-3 px-4 py-3 sm:gap-5 sm:px-6">
           <Link
             to={homePath(session.user.role)}
             aria-label="Foody Delivery — início"
@@ -32,7 +43,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </Link>
           <nav
             aria-label="Navegação principal"
-            className="order-3 flex w-full items-center gap-1 overflow-x-auto border-t pt-3 lg:order-none lg:ml-3 lg:w-auto lg:border-0 lg:pt-0"
+            className="ml-3 hidden items-center gap-1 lg:flex"
           >
             {navigation.map(({ path, label }) => (
               <NavLink
@@ -52,7 +63,41 @@ export function AppShell({ children }: { children: ReactNode }) {
               </NavLink>
             ))}
           </nav>
-          <div className="ml-auto">
+          <div className="ml-auto flex items-center gap-2">
+            <nav aria-label="Navegação principal" className="lg:hidden">
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  type="button"
+                  aria-label="Abrir navegação principal"
+                  className={buttonVariants({
+                    variant: "outline",
+                    size: "icon-lg",
+                  })}
+                >
+                  <Menu aria-hidden="true" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="min-w-44 p-1.5">
+                  <DropdownMenuGroup>
+                    {navigation.map(({ path, label }) => (
+                      <DropdownMenuItem
+                        key={path}
+                        aria-current={
+                          location.pathname === path ? "page" : undefined
+                        }
+                        className={cn(
+                          "px-2.5 py-2 font-medium",
+                          location.pathname === path &&
+                            "bg-secondary text-primary",
+                        )}
+                        onClick={() => navigate(path)}
+                      >
+                        {label}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuGroup>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </nav>
             <UserMenu user={session.user} onSignOut={signOut} />
           </div>
         </div>
