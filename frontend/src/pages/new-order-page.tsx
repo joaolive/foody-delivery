@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router";
 import { Minus, Plus } from "lucide-react";
 
@@ -8,6 +8,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  createSavedAddress,
+  fetchSavedAddresses,
+} from "@/features/addresses/services/address-service";
+import type { SavedAddress } from "@/features/addresses/types/address";
 import { createOrder } from "@/features/orders/services/order-service";
 import { ProductCard } from "@/features/products/components/product-card";
 import { fetchProducts } from "@/features/products/services/product-service";
@@ -26,9 +31,35 @@ export function NewOrderPage() {
     retry,
   } = usePaginatedList(fetchProducts);
   const [quantities, setQuantities] = useState<Record<string, number>>({});
-  const [address, setAddress] = useState("");
+  const [addresses, setAddresses] = useState<SavedAddress[]>([]);
+  const [addressesLoading, setAddressesLoading] = useState(true);
+  const [addressesLoadError, setAddressesLoadError] = useState(false);
+  const [addressRequestVersion, setAddressRequestVersion] = useState(0);
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(
+    null,
+  );
+  const [showAddressForm, setShowAddressForm] = useState(false);
+  const [newAddress, setNewAddress] = useState("");
+  const [addressSaveError, setAddressSaveError] = useState("");
+  const [savingAddress, setSavingAddress] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const activeAddressId = selectedAddressId ?? addresses[0]?.id ?? null;
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchSavedAddresses(controller.signal)
+      .then((result) => {
+        if (!controller.signal.aborted) setAddresses(result);
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) setAddressesLoadError(true);
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setAddressesLoading(false);
+      });
+    return () => controller.abort();
+  }, [addressRequestVersion]);
 
   const selectedProducts = products.filter(
     (product) => (quantities[product.id] ?? 0) > 0,
@@ -49,6 +80,27 @@ export function NewOrderPage() {
     }));
   }
 
+  async function saveAddress() {
+    const address = newAddress.trim();
+    if (!address || savingAddress) return;
+    setAddressSaveError("");
+    setSavingAddress(true);
+    try {
+      const saved = await createSavedAddress(address);
+      setAddresses((current) => [saved, ...current]);
+      setSelectedAddressId(saved.id);
+      setNewAddress("");
+      setShowAddressForm(false);
+      setSubmitError("");
+    } catch {
+      setAddressSaveError(
+        "Não foi possível salvar o endereço. Tente novamente.",
+      );
+    } finally {
+      setSavingAddress(false);
+    }
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setSubmitError("");
@@ -56,15 +108,19 @@ export function NewOrderPage() {
       setSubmitError("Selecione pelo menos um produto.");
       return;
     }
-    if (!address.trim()) {
-      setSubmitError("Informe o endereço de entrega.");
+    if (showAddressForm) {
+      setSubmitError("Salve ou cancele o novo endereço antes de confirmar.");
+      return;
+    }
+    if (!activeAddressId) {
+      setSubmitError("Cadastre um endereço de entrega antes de confirmar.");
       return;
     }
 
     setSubmitting(true);
     try {
       await createOrder({
-        address: address.trim(),
+        addressId: activeAddressId,
         items: selectedProducts.map((product) => ({
           productId: product.id,
           quantity: quantities[product.id],
@@ -74,7 +130,7 @@ export function NewOrderPage() {
     } catch (caught) {
       setSubmitError(
         caught instanceof ApiError && caught.status === 404
-          ? "Um produto não está mais disponível. Atualize a página e tente novamente."
+          ? "Um produto ou endereço não está mais disponível. Atualize a página e tente novamente."
           : "Não foi possível criar o pedido. Confira os dados e tente novamente.",
       );
     } finally {
@@ -206,27 +262,133 @@ export function NewOrderPage() {
                   {itemCount === 1 ? "item selecionado" : "itens selecionados"}
                 </p>
               </div>
-              <Field>
-                <FieldLabel htmlFor="delivery-address">
-                  Endereço de entrega
-                </FieldLabel>
-                <Textarea
-                  id="delivery-address"
-                  name="address"
-                  autoComplete="street-address"
-                  placeholder="Rua, número, bairro e complemento"
-                  maxLength={255}
-                  required
-                  value={address}
-                  onChange={(event) => setAddress(event.target.value)}
-                />
-              </Field>
+              <div className="space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <p className="text-sm font-medium">Endereço de entrega</p>
+                  {addresses.length > 0 && !showAddressForm && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowAddressForm(true)}
+                    >
+                      Adicionar endereço
+                    </Button>
+                  )}
+                </div>
+                {addressesLoading && (
+                  <p role="status" className="text-sm text-muted-foreground">
+                    Carregando endereços...
+                  </p>
+                )}
+                {addressesLoadError && (
+                  <div role="alert" className="space-y-2 text-sm">
+                    <p>Não foi possível carregar os endereços.</p>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setAddressesLoading(true);
+                        setAddressesLoadError(false);
+                        setAddressRequestVersion((current) => current + 1);
+                      }}
+                    >
+                      Tentar novamente
+                    </Button>
+                  </div>
+                )}
+                {addresses.length > 0 && (
+                  <fieldset
+                    disabled={submitting || savingAddress}
+                    className="space-y-2"
+                  >
+                    <legend className="sr-only">Escolha um endereço</legend>
+                    {addresses.map((saved) => (
+                      <label
+                        key={saved.id}
+                        className="flex cursor-pointer items-start gap-3 rounded-xl border bg-background p-3 has-checked:border-primary has-checked:bg-primary/5"
+                      >
+                        <input
+                          type="radio"
+                          name="saved-address"
+                          value={saved.id}
+                          checked={activeAddressId === saved.id}
+                          onChange={() => setSelectedAddressId(saved.id)}
+                          className="mt-0.5 size-4 shrink-0 accent-primary"
+                        />
+                        <span className="text-sm leading-relaxed break-words">
+                          {saved.address}
+                        </span>
+                      </label>
+                    ))}
+                  </fieldset>
+                )}
+                {!addressesLoading &&
+                  !addressesLoadError &&
+                  (showAddressForm || addresses.length === 0) && (
+                    <div className="space-y-3">
+                      <Field>
+                        <FieldLabel htmlFor="delivery-address">
+                          Novo endereço
+                        </FieldLabel>
+                        <Textarea
+                          id="delivery-address"
+                          autoComplete="street-address"
+                          placeholder="Rua, número, bairro e complemento"
+                          maxLength={255}
+                          value={newAddress}
+                          onChange={(event) =>
+                            setNewAddress(event.target.value)
+                          }
+                        />
+                      </Field>
+                      {addressSaveError && (
+                        <FieldError>{addressSaveError}</FieldError>
+                      )}
+                      <div className="flex flex-wrap gap-2">
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          disabled={
+                            !newAddress.trim() || savingAddress || submitting
+                          }
+                          onClick={saveAddress}
+                        >
+                          {savingAddress ? "Salvando..." : "Salvar endereço"}
+                        </Button>
+                        {addresses.length > 0 && (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            disabled={savingAddress}
+                            onClick={() => {
+                              setShowAddressForm(false);
+                              setNewAddress("");
+                              setAddressSaveError("");
+                            }}
+                          >
+                            Cancelar
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  )}
+              </div>
               {submitError && <FieldError>{submitError}</FieldError>}
               <Button
                 type="submit"
                 size="lg"
                 className="w-full"
-                disabled={submitting || products.length === 0}
+                disabled={
+                  submitting ||
+                  savingAddress ||
+                  addressesLoading ||
+                  addressesLoadError ||
+                  showAddressForm ||
+                  !activeAddressId ||
+                  products.length === 0
+                }
               >
                 {submitting ? "Criando pedido..." : "Confirmar pedido"}
               </Button>

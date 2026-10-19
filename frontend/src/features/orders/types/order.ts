@@ -18,6 +18,6 @@ export type Order = {
 };
 
 export type CreateOrderData = {
-  address: string;
+  addressId: string;
   items: { productId: string; quantity: number }[];
 };

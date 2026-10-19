@@ -1,5 +1,7 @@
 package com.joaolive.foody_delivery.order;
 
+import com.joaolive.foody_delivery.address.SavedAddress;
+import com.joaolive.foody_delivery.address.SavedAddressRepository;
 import com.joaolive.foody_delivery.common.ResourceNotFoundException;
 import com.joaolive.foody_delivery.order.dto.CreateOrderItemRequest;
 import com.joaolive.foody_delivery.order.dto.CreateOrderRequest;
@@ -16,15 +18,20 @@ import org.springframework.transaction.annotation.Transactional;
 public class OrderService {
 	private final OrderRepository orderRepository;
 	private final ProductRepository productRepository;
+	private final SavedAddressRepository addressRepository;
 
-	public OrderService(OrderRepository orderRepository, ProductRepository productRepository) {
+	public OrderService(OrderRepository orderRepository, ProductRepository productRepository,
+			SavedAddressRepository addressRepository) {
 		this.orderRepository = orderRepository;
 		this.productRepository = productRepository;
+		this.addressRepository = addressRepository;
 	}
 
 	@Transactional
 	public OrderResponse createOrder(CreateOrderRequest request, UUID clientId) {
-		Order order = new Order(clientId, request.address().strip());
+		SavedAddress address = addressRepository.findByIdAndUserId(request.addressId(), clientId)
+				.orElseThrow(() -> new ResourceNotFoundException("Address not found: " + request.addressId()));
+		Order order = new Order(clientId, address.getAddress());
 		for (CreateOrderItemRequest item : request.items()) {
 			Product product = productRepository.findById(item.productId())
 					.orElseThrow(() -> new ResourceNotFoundException("Product not found: " + item.productId()));
