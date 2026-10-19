@@ -26,3 +26,6 @@ databaseChangeLog:
   - include:
       file: 2026-10-19-009-add-product-image-url.sql
       relativeToChangelogFile: true
+  - include:
+      file: 2026-10-19-010-create-address.sql
+      relativeToChangelogFile: true
