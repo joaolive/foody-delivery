@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Link } from "react-router";
+import { Link, NavLink } from "react-router";
 
 import { ThemeToggle } from "@/components/common/theme-toggle";
 import { Button } from "@/components/ui/button";
@@ -17,12 +17,24 @@ export function AppShell({
   const { session, signOut } = useAuth();
   if (!session) return null;
 
+  const navigation =
+    session.user.role === "ADMIN"
+      ? [
+          { path: "/admin/orders", label: "Pedidos" },
+          { path: "/products", label: "Produtos" },
+        ]
+      : [
+          { path: "/orders", label: "Meus pedidos" },
+          { path: "/orders/new", label: "Novo pedido" },
+          { path: "/products", label: "Produtos" },
+        ];
+
   return (
     <div className="min-h-svh bg-background">
-      <header className="border-b">
+      <header className="border-b bg-card">
         <div
           className={cn(
-            "mx-auto flex items-center justify-between gap-4 px-4 py-4 sm:px-6",
+            "mx-auto flex flex-wrap items-center gap-x-4 gap-y-3 px-4 py-3 sm:px-6",
             wide ? "max-w-none" : "max-w-6xl",
           )}
         >
@@ -32,18 +44,34 @@ export function AppShell({
           >
             Foody Delivery
           </Link>
-          <div className="flex items-center gap-3">
-            <Link
-              to="/products"
-              className="text-sm text-muted-foreground hover:text-foreground"
-            >
-              Produtos
-            </Link>
-            <span className="hidden text-sm text-muted-foreground sm:inline">
+          <nav
+            aria-label="Navegação principal"
+            className="order-3 flex w-full items-center gap-1 overflow-x-auto border-t pt-3 lg:order-none lg:ml-2 lg:w-auto lg:border-0 lg:pt-0"
+          >
+            {navigation.map(({ path, label }) => (
+              <NavLink
+                key={path}
+                to={path}
+                end
+                className={({ isActive }) =>
+                  cn(
+                    "inline-flex h-9 shrink-0 items-center justify-center rounded-lg px-3 text-sm font-medium whitespace-nowrap transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                    isActive
+                      ? "bg-secondary text-secondary-foreground"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                  )
+                }
+              >
+                {label}
+              </NavLink>
+            ))}
+          </nav>
+          <div className="ml-auto flex items-center gap-3">
+            <span className="hidden text-sm text-muted-foreground xl:inline">
               {session.user.name}
             </span>
             <ThemeToggle />
-            <Button variant="outline" onClick={signOut}>
+            <Button type="button" variant="outline" onClick={signOut}>
               Sair
             </Button>
           </div>
