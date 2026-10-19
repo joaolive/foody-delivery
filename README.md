@@ -1,12 +1,77 @@
+_Projeto criado por joaolive._
+
 # Foody Delivery
 
-Mini rastreador de pedidos para o desafio Full-Stack. O backend usa Java 25, Spring Boot, PostgreSQL e Liquibase; o frontend usa React, TypeScript e Vite.
+## Descrição
 
-## Pré-requisitos
+Aplicação full-stack de pedidos de comida desenvolvida para um desafio de vaga. Clientes podem escolher produtos, criar pedidos e acompanhar a entrega; administradores podem consultar todos os pedidos e atualizar seus status.
 
-Tenha o Docker instalado e em execução, com Docker Compose disponível. O devcontainer é opcional; para executar as aplicações diretamente no computador, também são necessários Java 25, Node.js 24 e OpenSSL.
+### Objetivos do projeto
 
-Crie o arquivo local de configuração, caso ainda não exista:
+- Entregar um fluxo completo de cadastro, autenticação, compra e acompanhamento de pedidos.
+- Separar as permissões de cliente e administrador.
+- Manter o ambiente de desenvolvimento e os dados de demonstração reproduzíveis.
+
+---
+
+## Funcionalidades
+
+- Cadastro e login com JWT.
+- Catálogo paginado de produtos e endereços salvos por cliente.
+- Criação de pedidos com endereço escolhido no checkout e preços obtidos do catálogo pelo backend.
+- Consulta de pedidos próprios, detalhes e cancelamento enquanto o pedido estiver recebido ou em preparo.
+- Painel administrativo para consultar pedidos e atualizar seus status.
+- Interface responsiva com temas claro e escuro.
+
+### API e permissões
+
+| Rota                                       | Acesso                | Uso                                    |
+| ------------------------------------------ | --------------------- | -------------------------------------- |
+| `POST /user`, `POST /auth/login`           | Público               | Cadastro e login                       |
+| `GET /product`                             | Autenticado           | Catálogo paginado                      |
+| `GET /addresses`, `POST /addresses`        | Autenticado           | Endereços da própria conta             |
+| `POST /orders`, `GET /orders/mine`         | Cliente               | Criar e listar os próprios pedidos     |
+| `GET /orders/{id}`                         | Cliente dono ou admin | Detalhes do pedido                     |
+| `PATCH /orders/{id}/cancel`                | Cliente dono          | Cancelar pedido elegível               |
+| `GET /orders`, `PATCH /orders/{id}/status` | Admin                 | Listagem geral e atualização de status |
+
+`POST /orders` recebe o identificador de um endereço salvo (`addressId`) e uma lista de `{productId, quantity}`. O backend identifica o cliente pelo JWT e usa o preço atual de cada produto. Os status da API são apresentados na interface assim:
+
+| API                | Interface         |
+| ------------------ | ----------------- |
+| `RECEIVED`         | Recebido          |
+| `PREPARING`        | Em preparo        |
+| `OUT_FOR_DELIVERY` | Saiu para entrega |
+| `DELIVERED`        | Entregue          |
+| `CANCELED`         | Cancelado         |
+
+---
+
+## Escolhas técnicas
+
+| Parte                | Escolha                                                                                                             |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| Backend              | Java 25, Spring Boot 4 e Spring Data JPA para a API e persistência.                                                 |
+| Segurança            | Login local emite JWT assinado com RSA; o Spring Security Resource Server valida o token e as permissões das rotas. |
+| Dados                | PostgreSQL no perfil padrão `dev` e H2 em memória no perfil `test`; ambos usam as mesmas migrações Liquibase.       |
+| Frontend             | React, TypeScript, Vite e Tailwind CSS; o Vite encaminha `/api` ao backend durante o desenvolvimento.               |
+| Ambiente e qualidade | Docker Compose para PostgreSQL, devcontainer opcional, testes com Maven e cobertura com JaCoCo.                     |
+
+As migrações e os dados de demonstração são aplicados automaticamente quando o backend inicia. As chaves RSA são geradas localmente e ignoradas pelo Git.
+
+---
+
+## Instruções
+
+### Requisitos
+
+- Docker instalado e em execução, com Docker Compose disponível.
+- Para usar o devcontainer: editor com suporte a Dev Containers.
+- Para executar as aplicações fora do devcontainer: Java 25, Node.js 24, OpenSSL e Bash.
+
+### Preparação
+
+Crie o arquivo de configuração local:
 
 ```bash
 cp backend/.env.example backend/.env
@@ -14,22 +79,26 @@ cp backend/.env.example backend/.env
 
 Os valores do exemplo servem apenas para desenvolvimento local. `backend/.env` é ignorado pelo Git.
 
-## Executar no devcontainer
+### Execução
 
-Abra a pasta no devcontainer e, em terminais separados dentro dele, execute:
+#### No devcontainer
+
+Abra o projeto no devcontainer. Em um terminal, gere as chaves e inicie o backend:
 
 ```bash
 ./generate-local-keys.sh
 cd backend && ./mvnw spring-boot:run
 ```
 
+Em outro terminal, inicie o frontend:
+
 ```bash
 cd frontend && npm ci && npm run dev
 ```
 
-## Executar sem devcontainer
+#### Sem devcontainer
 
-Inicie apenas o PostgreSQL pelo Docker Compose:
+Inicie o PostgreSQL com Docker Compose:
 
 ```bash
 docker compose -f .devcontainer/docker-compose.yml up -d db
@@ -52,63 +121,51 @@ Em outro terminal, inicie o frontend:
 cd frontend && npm ci && npm run dev
 ```
 
-A interface fica em `http://localhost:5173`. O Vite encaminha `/api` ao backend na porta 8080. O perfil padrão `dev` usa PostgreSQL; os testes selecionam explicitamente o perfil `test`, que usa H2 em memória. Ambos aplicam as mesmas migrações Liquibase e carregam dados de demonstração. As chaves RSA geradas são locais e ignoradas pelo Git.
+A interface fica em `http://localhost:5173` e o backend em `http://localhost:8080`. O Vite encaminha `/api` ao backend.
 
-## Contas de demonstração
+### Contas de demonstração
 
-| Perfil | E-mail | Senha |
-| --- | --- | --- |
-| Admin (Alex) | `alex.green@example.com` | `admin123` |
+| Perfil          | E-mail                    | Senha       |
+| --------------- | ------------------------- | ----------- |
+| Admin (Alex)    | `alex.green@example.com`  | `admin123`  |
 | Cliente (Maria) | `maria.brown@example.com` | `client123` |
 
-O cliente pode cadastrar outra conta pela interface. A conta admin permite ver todos os pedidos e atualizar seus status; a conta cliente cria pedidos, consulta os próprios pedidos e pode cancelá-los enquanto estiverem recebidos ou em preparo.
+### Testes
 
-## API e decisões
-
-O login em `POST /auth/login` recebe e-mail e senha e retorna um JWT. O frontend envia esse token como `Authorization: Bearer ...`; o Resource Server valida o token nas rotas protegidas. O cadastro em `POST /user` e o login são públicos.
-
-| Rota | Acesso | Uso |
-| --- | --- | --- |
-| `GET /product` | Autenticado | Catálogo paginado |
-| `GET /addresses`, `POST /addresses` | Autenticado | Endereços da própria conta |
-| `POST /orders`, `GET /orders/mine` | Cliente | Criar e listar os próprios pedidos |
-| `GET /orders/{id}` | Cliente dono ou admin | Detalhes do pedido |
-| `PATCH /orders/{id}/cancel` | Cliente dono | Cancelar pedido elegível |
-| `GET /orders`, `PATCH /orders/{id}/status` | Admin | Listagem geral e atualização de status |
-
-`POST /orders` recebe `addressId` de um endereço salvo pelo cliente e uma lista de `{productId, quantity}`. O backend obtém o cliente do JWT e o preço atual do catálogo. A API mantém os valores de status em inglês; a interface mostra os nomes pedidos no enunciado:
-
-| API | Interface |
-| --- | --- |
-| `RECEIVED` | Recebido |
-| `PREPARING` | Em preparo |
-| `OUT_FOR_DELIVERY` | Saiu para entrega |
-| `DELIVERED` | Entregue |
-| `CANCELED` | Cancelado |
-
-## Verificar
-
-Execute no devcontainer, após gerar as chaves RSA:
+Depois de gerar as chaves RSA no ambiente escolhido, execute os testes do backend:
 
 ```bash
 cd backend && ./mvnw verify
 ```
 
-O JaCoCo inclui os testes unitários e de integração e gera o relatório HTML em `backend/target/site/jacoco/index.html`, além de XML e CSV no mesmo diretório. Não há meta global de cobertura: o relatório serve para identificar regras importantes ainda sem teste.
+O JaCoCo gera o relatório HTML em `backend/target/site/jacoco/index.html`, além de XML e CSV no mesmo diretório. O relatório reúne testes unitários e de integração; não há meta global de cobertura.
+
+Para verificar o frontend:
 
 ```bash
-cd frontend && npm run build && npm run lint && npm run format:check
+cd frontend && npm ci && npm run build && npm run lint && npm run format:check
 ```
 
-As migrações são aplicadas automaticamente quando o backend inicia. Não é preciso executar SQL manualmente para os dados de demonstração.
+---
 
-## Uso de inteligência artificial
+## Recursos
 
-O OpenAI Codex foi usado como assistente de desenvolvimento para analisar requisitos, propor soluções e apoiar a implementação, a revisão e a documentação do projeto. O uso se concentrou nestas partes:
+### Referências
 
-- **Backend:** apoio na implementação e revisão das APIs de usuários, produtos, endereços e pedidos; análise das regras de acesso e do fluxo JWT; simplificação da autenticação com a remoção do Authorization Server que não era utilizado, mantendo o Resource Server.
-- **Frontend:** apoio nas telas de autenticação, catálogo, criação e acompanhamento de pedidos e administração, além de ajustes de navegação e responsividade.
-- **Testes e ambiente:** criação de testes unitários para regras de pedidos e testes de integração da API e das permissões; configuração do JaCoCo; revisão dos perfis, das migrações Liquibase e da execução com ou sem devcontainer.
-- **Revisão e documentação:** análise da organização e da qualidade do código, sugestões de simplificação e atualização deste README.
+- [Spring Boot](https://docs.spring.io/spring-boot/reference/index.html)
+- [Spring Security Resource Server](https://docs.spring.io/spring-security/reference/servlet/oauth2/resource-server/jwt.html)
+- [React](https://react.dev/learn)
+- [Vite](https://vite.dev/guide/)
+- [Liquibase Community](https://docs.liquibase.com/community)
+- [Docker Compose](https://docs.docker.com/compose/)
 
-O autor definiu os requisitos e as decisões de escopo. As alterações foram registradas em commits incrementais, e a verificação incluiu testes e build no devcontainer.
+### Uso de inteligência artificial
+
+O OpenAI Codex foi usado como assistente de pesquisa e desenvolvimento. A IA apoiou:
+
+- **Backend:** implementação e revisão das APIs de usuários, produtos, endereços e pedidos; análise do fluxo JWT e das permissões; remoção do Authorization Server que não era utilizado, mantendo o Resource Server.
+- **Frontend:** implementação e revisão das telas de autenticação, catálogo, criação e acompanhamento de pedidos e administração, além de ajustes de navegação e responsividade.
+- **Testes e ambiente:** criação de testes unitários para regras de pedidos e testes de integração da API; configuração do JaCoCo; revisão dos perfis, das migrações Liquibase e das instruções de execução.
+- **Documentação:** revisão da organização do código e elaboração deste README.
+
+O autor definiu os requisitos e as decisões de escopo. As sugestões da IA foram avaliadas e adaptadas ao projeto; o código foi verificado com testes e builds no devcontainer e permanece sob responsabilidade do autor.
