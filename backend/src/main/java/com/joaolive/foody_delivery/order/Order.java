@@ -19,10 +19,8 @@ import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
 @Table(name = "tb_order")
@@ -49,6 +47,9 @@ public class Order {
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "order_id", referencedColumnName = "id", insertable = false, updatable = false)
 	private Set<OrderItem> items = new HashSet<>();
+
+	protected Order() {
+	}
 
 	public Order(UUID clientId, String address) {
 		this.id = UUID.randomUUID();

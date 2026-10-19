@@ -5,13 +5,10 @@ import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
-import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
 @Table(name = "tb_order_item")
@@ -23,6 +20,9 @@ public class OrderItem {
 	private BigDecimal unitPrice;
 	@Column(nullable = false)
 	private Integer quantity;
+
+	protected OrderItem() {
+	}
 
 	OrderItem(OrderItemPK id, BigDecimal unitPrice, int quantity) {
 		this.id = id;

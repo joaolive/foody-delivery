@@ -6,13 +6,10 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.util.UUID;
-import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
 @Table(name = "tb_product")
@@ -24,6 +21,9 @@ public class Product {
 	private String name;
 	@Column(nullable = false, precision = 10, scale = 2)
 	private BigDecimal price;
+
+	protected Product() {
+	}
 
 	public Product(String name, BigDecimal price) {
 		this.id = UUID.randomUUID();

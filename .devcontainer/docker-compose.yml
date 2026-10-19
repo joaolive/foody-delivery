@@ -6,8 +6,6 @@ services:
     command: sleep infinity
     env_file:
       - ../backend/.env
-    environment:
-      SPRING_PROFILES_ACTIVE: dev
     depends_on:
       db:
         condition: service_healthy
