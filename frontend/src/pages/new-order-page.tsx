@@ -1,11 +1,20 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router";
-import { Minus, Plus } from "lucide-react";
+import { ChevronDown, MapPin, Minus, Plus } from "lucide-react";
 
 import { AppShell } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/common/page-header";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -44,7 +53,11 @@ export function NewOrderPage() {
   const [savingAddress, setSavingAddress] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const activeAddressId = selectedAddressId ?? addresses[0]?.id ?? null;
+  const activeAddress =
+    addresses.find((address) => address.id === selectedAddressId) ??
+    addresses[0] ??
+    null;
+  const activeAddressId = activeAddress?.id ?? null;
 
   useEffect(() => {
     const controller = new AbortController();
@@ -263,19 +276,7 @@ export function NewOrderPage() {
                 </p>
               </div>
               <div className="space-y-3">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <p className="text-sm font-medium">Endereço de entrega</p>
-                  {addresses.length > 0 && !showAddressForm && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setShowAddressForm(true)}
-                    >
-                      Adicionar endereço
-                    </Button>
-                  )}
-                </div>
+                <p className="text-sm font-medium">Endereço de entrega</p>
                 {addressesLoading && (
                   <p role="status" className="text-sm text-muted-foreground">
                     Carregando endereços...
@@ -298,31 +299,59 @@ export function NewOrderPage() {
                     </Button>
                   </div>
                 )}
-                {addresses.length > 0 && (
-                  <fieldset
-                    disabled={submitting || savingAddress}
-                    className="space-y-2"
-                  >
-                    <legend className="sr-only">Escolha um endereço</legend>
-                    {addresses.map((saved) => (
-                      <label
-                        key={saved.id}
-                        className="flex cursor-pointer items-start gap-3 rounded-xl border bg-background p-3 has-checked:border-primary has-checked:bg-primary/5"
+                {addresses.length > 0 && !showAddressForm && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger
+                      type="button"
+                      disabled={submitting || savingAddress}
+                      aria-label={`Endereço de entrega: ${activeAddress?.address ?? "Selecione um endereço"}`}
+                      className={buttonVariants({
+                        variant: "outline",
+                        className:
+                          "h-auto min-h-11 w-full justify-start gap-2.5 rounded-xl px-3 py-2 text-left",
+                      })}
+                    >
+                      <MapPin
+                        aria-hidden="true"
+                        className="size-4 shrink-0 text-primary"
+                      />
+                      <span className="min-w-0 flex-1 truncate">
+                        {activeAddress?.address}
+                      </span>
+                      <ChevronDown
+                        aria-hidden="true"
+                        className="size-4 shrink-0 text-muted-foreground"
+                      />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="max-h-72">
+                      <DropdownMenuRadioGroup
+                        value={activeAddressId}
+                        onValueChange={(value) =>
+                          setSelectedAddressId(String(value))
+                        }
                       >
-                        <input
-                          type="radio"
-                          name="saved-address"
-                          value={saved.id}
-                          checked={activeAddressId === saved.id}
-                          onChange={() => setSelectedAddressId(saved.id)}
-                          className="mt-0.5 size-4 shrink-0 accent-primary"
-                        />
-                        <span className="text-sm leading-relaxed break-words">
-                          {saved.address}
-                        </span>
-                      </label>
-                    ))}
-                  </fieldset>
+                        {addresses.map((address) => (
+                          <DropdownMenuRadioItem
+                            key={address.id}
+                            value={address.id}
+                            className="py-2"
+                          >
+                            <span className="min-w-0 flex-1 leading-relaxed break-words whitespace-normal">
+                              {address.address}
+                            </span>
+                          </DropdownMenuRadioItem>
+                        ))}
+                      </DropdownMenuRadioGroup>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        className="py-2"
+                        onClick={() => setShowAddressForm(true)}
+                      >
+                        <Plus aria-hidden="true" />
+                        Adicionar endereço
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 )}
                 {!addressesLoading &&
                   !addressesLoadError &&
