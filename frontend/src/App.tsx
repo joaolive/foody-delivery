@@ -5,6 +5,8 @@ import { ProtectedRoute } from "@/features/auth/components/protected-route";
 import { useAuth } from "@/features/auth/hooks/use-auth";
 import { HomePage } from "@/pages/home-page";
 import { LoginPage } from "@/pages/login-page";
+import { NewOrderPage } from "@/pages/new-order-page";
+import { OrdersPage } from "@/pages/orders-page";
 import { RegisterPage } from "@/pages/register-page";
 
 function RootRedirect() {
@@ -35,7 +37,15 @@ function App() {
             path="/orders"
             element={
               <ProtectedRoute role="CLIENT">
-                <HomePage />
+                <OrdersPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/orders/new"
+            element={
+              <ProtectedRoute role="CLIENT">
+                <NewOrderPage />
               </ProtectedRoute>
             }
           />
