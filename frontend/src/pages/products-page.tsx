@@ -1,6 +1,7 @@
 import { Link } from "react-router";
 
 import { AppShell } from "@/components/layout/app-shell";
+import { PageHeader } from "@/components/common/page-header";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { ProductCard } from "@/features/products/components/product-card";
 import { fetchProducts } from "@/features/products/services/product-service";
@@ -22,22 +23,18 @@ export function ProductsPage() {
   return (
     <AppShell>
       <div className="space-y-8">
-        <div className="flex flex-wrap items-end justify-between gap-5">
-          <div className="space-y-2">
-            <p className="text-sm font-medium text-muted-foreground">
-              Cardápio
-            </p>
-            <h1 className="text-3xl font-semibold tracking-tight">Produtos</h1>
-            <p className="text-sm text-muted-foreground">
-              Conheça os produtos disponíveis para entrega.
-            </p>
-          </div>
-          {session?.user.role === "CLIENT" && (
-            <Link to="/orders/new" className={buttonVariants({ size: "lg" })}>
-              Novo pedido
-            </Link>
-          )}
-        </div>
+        <PageHeader
+          eyebrow="Cardápio"
+          title="Produtos"
+          description="Conheça os produtos disponíveis para entrega."
+          action={
+            session?.user.role === "CLIENT" ? (
+              <Link to="/orders/new" className={buttonVariants({ size: "lg" })}>
+                Novo pedido
+              </Link>
+            ) : undefined
+          }
+        />
 
         {products.length > 0 && (
           <p className="text-sm text-muted-foreground">

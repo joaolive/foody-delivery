@@ -1,6 +1,7 @@
 import { Link, useLocation } from "react-router";
 
 import { AppShell } from "@/components/layout/app-shell";
+import { PageHeader } from "@/components/common/page-header";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { OrderCard } from "@/features/orders/components/order-card";
@@ -23,22 +24,16 @@ export function OrdersPage() {
   return (
     <AppShell>
       <div className="space-y-8">
-        <div className="flex flex-wrap items-end justify-between gap-5">
-          <div className="space-y-2">
-            <p className="text-sm font-medium text-muted-foreground">
-              Seus pedidos
-            </p>
-            <h1 className="text-3xl font-semibold tracking-tight">
-              Meus pedidos
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              Acompanhe o status e os detalhes das suas entregas.
-            </p>
-          </div>
-          <Link to="/orders/new" className={buttonVariants({ size: "lg" })}>
-            Novo pedido
-          </Link>
-        </div>
+        <PageHeader
+          eyebrow="Suas entregas"
+          title="Meus pedidos"
+          description="Acompanhe o status e os detalhes das suas entregas."
+          action={
+            <Link to="/orders/new" className={buttonVariants({ size: "lg" })}>
+              Novo pedido
+            </Link>
+          }
+        />
 
         {created && (
           <p

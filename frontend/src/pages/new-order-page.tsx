@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router";
 import { Minus, Plus } from "lucide-react";
 
 import { AppShell } from "@/components/layout/app-shell";
+import { PageHeader } from "@/components/common/page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
@@ -84,17 +85,18 @@ export function NewOrderPage() {
   return (
     <AppShell>
       <div className="space-y-8">
-        <div className="space-y-3">
+        <div className="space-y-5">
           <Link
             to="/orders"
             className="text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground"
           >
             Voltar para meus pedidos
           </Link>
-          <h1 className="text-3xl font-semibold tracking-tight">Novo pedido</h1>
-          <p className="text-sm text-muted-foreground">
-            Escolha os produtos e informe onde deseja receber a entrega.
-          </p>
+          <PageHeader
+            eyebrow="Faça seu pedido"
+            title="Novo pedido"
+            description="Escolha os produtos e informe onde deseja receber a entrega."
+          />
         </div>
 
         <form

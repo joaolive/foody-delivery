@@ -2,6 +2,7 @@ import { useState } from "react";
 import { RefreshCw } from "lucide-react";
 
 import { AppShell } from "@/components/layout/app-shell";
+import { PageHeader } from "@/components/common/page-header";
 import { Button } from "@/components/ui/button";
 import { OrderColumn } from "@/features/orders/components/order-column";
 import {
@@ -64,45 +65,36 @@ export function AdminOrdersPage() {
   }
 
   return (
-    <AppShell wide>
+    <AppShell>
       <div className="space-y-7">
         <p role="status" className="sr-only">
           {announcement}
         </p>
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div className="space-y-2">
-            <p className="text-sm font-medium text-muted-foreground">
-              Administração
-            </p>
-            <h1 className="text-3xl font-semibold tracking-tight">Pedidos</h1>
-            <p className="text-sm text-muted-foreground">
-              Acompanhe as entregas e atualize o status de cada pedido.
-            </p>
-          </div>
-          <Button
-            variant="outline"
-            onClick={refreshOrders}
-            disabled={loading || pendingId !== null}
-          >
-            <RefreshCw aria-hidden="true" />
-            Atualizar
-          </Button>
-        </div>
+        <PageHeader
+          eyebrow="Administração"
+          title="Pedidos"
+          description="Acompanhe as entregas e atualize o status de cada pedido."
+          action={
+            <Button
+              variant="outline"
+              onClick={refreshOrders}
+              disabled={loading || pendingId !== null}
+            >
+              <RefreshCw aria-hidden="true" />
+              Atualizar
+            </Button>
+          }
+        />
 
-        <div className="flex flex-wrap items-center justify-between gap-2 border-y py-4 text-sm">
+        <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
           <strong>
             {orders.length} de {totalElements} pedidos carregados
           </strong>
           <span className="text-muted-foreground">Agrupados por status</span>
         </div>
 
-        <div
-          role="region"
-          aria-label="Quadro de pedidos por status"
-          tabIndex={0}
-          className="-mx-4 overflow-x-auto px-4 pb-3 outline-none focus-visible:ring-2 focus-visible:ring-ring sm:-mx-6 sm:px-6"
-        >
-          <div className="grid min-w-[90rem] grid-cols-5 items-start gap-4">
+        <div role="region" aria-label="Quadro de pedidos por status">
+          <div className="grid grid-cols-1 items-start gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
             {orderStatuses.map((status) => (
               <OrderColumn
                 key={status}

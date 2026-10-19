@@ -26,11 +26,11 @@ export function ThemeToggle() {
     <Button
       type="button"
       variant="outline"
+      size="icon"
       onClick={toggleTheme}
       aria-label={`Ativar ${label.toLowerCase()}`}
     >
       {isDark ? <Sun aria-hidden="true" /> : <Moon aria-hidden="true" />}
-      <span className="hidden sm:inline">{label}</span>
     </Button>
   );
 }

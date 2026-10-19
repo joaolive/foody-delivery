@@ -26,9 +26,9 @@ export function OrderColumn({
   return (
     <section
       aria-labelledby={headingId}
-      className="min-h-80 rounded-xl border bg-muted/20"
+      className="overflow-hidden rounded-xl border bg-card shadow-sm"
     >
-      <div className="flex items-center gap-2 border-b px-4 py-4">
+      <div className="flex items-center gap-2 border-b bg-muted/30 px-4 py-4">
         <span
           aria-hidden="true"
           className={`size-2.5 rounded-full ${orderStatusDotClasses[status]}`}
@@ -41,7 +41,7 @@ export function OrderColumn({
         </Badge>
       </div>
       {orders.length === 0 ? (
-        <p className="px-4 py-8 text-center text-sm text-muted-foreground">
+        <p className="px-4 py-6 text-center text-sm text-muted-foreground">
           Nenhum pedido carregado
         </p>
       ) : (
