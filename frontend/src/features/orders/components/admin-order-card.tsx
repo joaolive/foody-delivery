@@ -1,4 +1,5 @@
 import { ChevronDown, MapPin } from "lucide-react";
+import { Link } from "react-router";
 
 import { buttonVariants } from "@/components/ui/button";
 import {
@@ -33,6 +34,7 @@ type AdminOrderCardProps = {
   order: Order;
   pending: boolean;
   actionsDisabled: boolean;
+  linkTitle?: boolean;
   error?: string;
   onStatusChange: (order: Order, status: OrderStatus) => void;
 };
@@ -41,6 +43,7 @@ export function AdminOrderCard({
   order,
   pending,
   actionsDisabled,
+  linkTitle = true,
   error,
   onStatusChange,
 }: AdminOrderCardProps) {
@@ -59,7 +62,16 @@ export function AdminOrderCard({
           </p>
           <CardTitle>
             <h3 className="text-base font-bold tracking-tight" title={order.id}>
-              #{order.id.slice(0, 8).toUpperCase()}
+              {linkTitle ? (
+                <Link
+                  to={`/admin/orders/${order.id}`}
+                  className="rounded-md hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                >
+                  #{order.id.slice(0, 8).toUpperCase()}
+                </Link>
+              ) : (
+                <>#{order.id.slice(0, 8).toUpperCase()}</>
+              )}
             </h3>
           </CardTitle>
         </div>

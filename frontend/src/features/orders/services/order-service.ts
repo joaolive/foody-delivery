@@ -18,6 +18,10 @@ export function fetchAllOrders(page: number, signal: AbortSignal) {
   });
 }
 
+export function fetchOrderById(orderId: string, signal: AbortSignal) {
+  return apiRequest<Order>(`/orders/${orderId}`, { signal });
+}
+
 export function createOrder(data: CreateOrderData) {
   return apiRequest<Order>("/orders", {
     method: "POST",

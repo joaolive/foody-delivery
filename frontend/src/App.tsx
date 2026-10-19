@@ -6,6 +6,7 @@ import { useAuth } from "@/features/auth/hooks/use-auth";
 import { AdminOrdersPage } from "@/pages/admin-orders-page";
 import { LoginPage } from "@/pages/login-page";
 import { NewOrderPage } from "@/pages/new-order-page";
+import { OrderDetailPage } from "@/pages/order-detail-page";
 import { OrdersPage } from "@/pages/orders-page";
 import { RegisterPage } from "@/pages/register-page";
 
@@ -50,10 +51,26 @@ function App() {
             }
           />
           <Route
+            path="/orders/:id"
+            element={
+              <ProtectedRoute role="CLIENT">
+                <OrderDetailPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/admin/orders"
             element={
               <ProtectedRoute role="ADMIN">
                 <AdminOrdersPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/orders/:id"
+            element={
+              <ProtectedRoute role="ADMIN">
+                <OrderDetailPage />
               </ProtectedRoute>
             }
           />

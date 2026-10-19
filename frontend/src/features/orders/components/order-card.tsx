@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { CalendarDays, MapPin } from "lucide-react";
+import { Link } from "react-router";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -21,6 +22,7 @@ type OrderCardProps = {
   order: Order;
   pending: boolean;
   actionsDisabled: boolean;
+  linkTitle?: boolean;
   error?: string;
   onCancel: (order: Order) => void;
 };
@@ -29,6 +31,7 @@ export function OrderCard({
   order,
   pending,
   actionsDisabled,
+  linkTitle = true,
   error,
   onCancel,
 }: OrderCardProps) {
@@ -47,7 +50,16 @@ export function OrderCard({
             </p>
             <CardTitle>
               <h2 className="text-lg font-bold tracking-tight" title={order.id}>
-                #{order.id.slice(0, 8).toUpperCase()}
+                {linkTitle ? (
+                  <Link
+                    to={`/orders/${order.id}`}
+                    className="rounded-md hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                  >
+                    #{order.id.slice(0, 8).toUpperCase()}
+                  </Link>
+                ) : (
+                  <>#{order.id.slice(0, 8).toUpperCase()}</>
+                )}
               </h2>
             </CardTitle>
           </div>

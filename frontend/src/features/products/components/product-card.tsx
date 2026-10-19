@@ -7,10 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  PRODUCT_IMAGE_FALLBACK,
-  resolveProductImageUrl,
-} from "@/features/products/lib/product-image";
+import { ProductImage } from "@/features/products/components/product-image";
 import type { Product } from "@/features/products/types/product";
 import { formatCurrency } from "@/lib/format";
 
@@ -28,21 +25,10 @@ export function ProductCard({
       data-selected={selected || undefined}
       className="h-full rounded-2xl shadow-sm ring-border/90 transition-shadow duration-200 hover:shadow-md data-[selected=true]:ring-2 data-[selected=true]:ring-primary/70"
     >
-      <img
-        src={resolveProductImageUrl(product.imageUrl)}
-        alt={`Foto de ${product.name}`}
+      <ProductImage
+        name={product.name}
+        imageUrl={product.imageUrl}
         className="aspect-[4/3] w-full rounded-t-2xl bg-muted object-cover"
-        loading="lazy"
-        decoding="async"
-        onError={(event) => {
-          const fallback = resolveProductImageUrl(PRODUCT_IMAGE_FALLBACK);
-          if (
-            event.currentTarget.src !==
-            new URL(fallback, window.location.href).href
-          ) {
-            event.currentTarget.src = fallback;
-          }
-        }}
       />
       <CardHeader className="gap-2">
         <CardTitle>

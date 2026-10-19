@@ -3,7 +3,8 @@ import { API_BASE_URL } from "@/lib/api-client";
 export const PRODUCT_IMAGE_FALLBACK =
   "/images/products/product-placeholder.svg";
 
-export function resolveProductImageUrl(imageUrl: string) {
+export function resolveProductImageUrl(imageUrl: string | null | undefined) {
+  if (!imageUrl) imageUrl = PRODUCT_IMAGE_FALLBACK;
   if (/^https?:\/\//i.test(imageUrl)) return imageUrl;
   return `${API_BASE_URL}/${imageUrl.replace(/^\/+/, "")}`;
 }

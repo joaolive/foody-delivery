@@ -8,3 +8,7 @@ export function fetchProducts(page: number, signal: AbortSignal) {
     { signal },
   );
 }
+
+export function fetchProductById(productId: string, signal: AbortSignal) {
+  return apiRequest<Product>(`/product/${productId}`, { signal });
+}
