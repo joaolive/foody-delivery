@@ -1,9 +1,12 @@
 package com.joaolive.foody_delivery.auth.web;
 
 import java.security.Principal;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import org.springframework.core.MethodParameter;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.support.WebDataBinderFactory;
@@ -27,7 +30,9 @@ public class CurrentUserArgumentResolver implements HandlerMethodArgumentResolve
 			String username = jwt.getClaimAsString("username");
 			if (StringUtils.hasText(userId) && StringUtils.hasText(username)) {
 				try {
-					return new UserContext(UUID.fromString(userId), username);
+					Set<String> authorities = authentication.getAuthorities().stream()
+							.map(GrantedAuthority::getAuthority).collect(Collectors.toSet());
+					return new UserContext(UUID.fromString(userId), username, authorities);
 				} catch (IllegalArgumentException ex) {
 					throw new InvalidUserIdentityException("Invalid or missing user identity in request context");
 				}

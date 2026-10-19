@@ -1,6 +1,6 @@
 package com.joaolive.foody_delivery.product;
 
-import com.joaolive.foody_delivery.product.dto.ProductDTO;
+import com.joaolive.foody_delivery.product.dto.ProductResponse;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -22,15 +22,15 @@ public class ProductController {
 	}
 
 	@GetMapping(value = "/{id}")
-	public ResponseEntity<ProductDTO> findById(@PathVariable UUID id) {
-		ProductDTO result = service.findById(id);
+	public ResponseEntity<ProductResponse> findById(@PathVariable UUID id) {
+		ProductResponse result = service.findById(id);
 		return ResponseEntity.ok(result);
 	}
 
 	@GetMapping
-	public ResponseEntity<Page<ProductDTO>> findAll(Pageable pageable,
+	public ResponseEntity<Page<ProductResponse>> findAll(Pageable pageable,
 			@RequestParam(value = "name", defaultValue = "") String name) {
-		Page<ProductDTO> list = service.findAll(pageable, name);
+		Page<ProductResponse> list = service.findAll(pageable, name);
 		return ResponseEntity.ok(list);
 	}
 }

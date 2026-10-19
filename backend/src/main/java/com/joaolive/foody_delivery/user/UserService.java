@@ -1,7 +1,7 @@
 package com.joaolive.foody_delivery.user;
 
-import com.joaolive.foody_delivery.user.dto.UserDTO;
-import com.joaolive.foody_delivery.user.dto.UserInsertDTO;
+import com.joaolive.foody_delivery.user.dto.CreateUserRequest;
+import com.joaolive.foody_delivery.user.dto.UserResponse;
 import java.util.Locale;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -18,15 +18,15 @@ public class UserService {
 	}
 
 	@Transactional
-	public UserDTO insert(UserInsertDTO dto) {
-		String email = dto.email().strip().toLowerCase(Locale.ROOT);
+	public UserResponse createUser(CreateUserRequest request) {
+		String email = request.email().strip().toLowerCase(Locale.ROOT);
 		if (repository.existsByEmailIgnoreCase(email)) {
 			throw new EmailAlreadyExistsException("Email already registered");
 		}
-		String password = passwordEncoder.encode(dto.password());
-		User entity = new User(dto.name(), email, password);
+		String password = passwordEncoder.encode(request.password());
+		User entity = new User(request.name(), email, password);
 		entity = repository.save(entity);
-		return new UserDTO(entity.getId(), entity.getName(), entity.getEmail(), entity.getRole());
+		return new UserResponse(entity.getId(), entity.getName(), entity.getEmail(), entity.getRole());
 	}
 
 }

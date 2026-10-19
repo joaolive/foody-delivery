@@ -78,6 +78,18 @@ public class Order {
 	}
 
 	public void changeStatus(OrderStatus status) {
+		if (this.status == status) {
+			return;
+		}
+		boolean allowed = switch (this.status) {
+			case RECEIVED -> status == OrderStatus.PREPARING || status == OrderStatus.CANCELED;
+			case PREPARING -> status == OrderStatus.OUT_FOR_DELIVERY || status == OrderStatus.CANCELED;
+			case OUT_FOR_DELIVERY -> status == OrderStatus.DELIVERED || status == OrderStatus.CANCELED;
+			case DELIVERED, CANCELED -> false;
+		};
+		if (!allowed) {
+			throw new InvalidOrderStatusTransitionException(this.status, status);
+		}
 		this.status = status;
 		updatedAt = Instant.now();
 	}

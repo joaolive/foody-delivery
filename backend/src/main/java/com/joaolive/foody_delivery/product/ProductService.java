@@ -1,7 +1,7 @@
 package com.joaolive.foody_delivery.product;
 
 import com.joaolive.foody_delivery.common.ResourceNotFoundException;
-import com.joaolive.foody_delivery.product.dto.ProductDTO;
+import com.joaolive.foody_delivery.product.dto.ProductResponse;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -18,14 +18,14 @@ public class ProductService {
 	}
 
 	@Transactional(readOnly = true)
-	public ProductDTO findById(UUID id) {
+	public ProductResponse findById(UUID id) {
 		Product entity = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Product not found"));
-		return new ProductDTO(entity.getId(), entity.getName(), entity.getPrice());
+		return new ProductResponse(entity.getId(), entity.getName(), entity.getPrice());
 	}
 
 	@Transactional(readOnly = true)
-	public Page<ProductDTO> findAll(Pageable pageable, String name) {
+	public Page<ProductResponse> findAll(Pageable pageable, String name) {
 		Page<Product> products = repository.findByNameContainingIgnoreCase(name.strip(), pageable);
-		return products.map(product -> new ProductDTO(product.getId(), product.getName(), product.getPrice()));
+		return products.map(product -> new ProductResponse(product.getId(), product.getName(), product.getPrice()));
 	}
 }

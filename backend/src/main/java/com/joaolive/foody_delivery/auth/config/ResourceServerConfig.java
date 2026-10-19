@@ -34,8 +34,7 @@ public class ResourceServerConfig {
 
 		http.csrf(csrf -> csrf.disable());
 		http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-		http.authorizeHttpRequests(authorize -> authorize
-				.requestMatchers(HttpMethod.POST, "/user", "/api/auth/register", "/api/auth/login").permitAll()
+		http.authorizeHttpRequests(authorize -> authorize.requestMatchers(HttpMethod.POST, "/user").permitAll()
 				.anyRequest().authenticated());
 		http.oauth2ResourceServer(oauth2ResourceServer -> oauth2ResourceServer
 				.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter)));
