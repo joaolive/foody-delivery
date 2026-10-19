@@ -1,4 +1,5 @@
-import { CircleCheck, ShoppingBag } from "lucide-react";
+import { useState } from "react";
+import { CircleCheck, RefreshCw, ShoppingBag } from "lucide-react";
 import { Link, useLocation } from "react-router";
 
 import { AppShell } from "@/components/layout/app-shell";
@@ -6,33 +7,87 @@ import { PageHeader } from "@/components/common/page-header";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { OrderCard } from "@/features/orders/components/order-card";
-import { fetchMyOrders } from "@/features/orders/services/order-service";
+import {
+  cancelOwnOrder,
+  fetchMyOrders,
+} from "@/features/orders/services/order-service";
+import type { Order } from "@/features/orders/types/order";
 import { usePaginatedList } from "@/hooks/use-paginated-list";
+import { ApiError } from "@/lib/api-client";
 
 export function OrdersPage() {
   const location = useLocation();
   const created = (location.state as { created?: boolean } | null)?.created;
   const {
-    items: orders,
+    items: loadedOrders,
     hasMore,
     totalElements,
     loading,
     error,
     loadMore,
     retry,
+    reload,
   } = usePaginatedList(fetchMyOrders);
+  const [changedOrders, setChangedOrders] = useState<Record<string, Order>>({});
+  const [actionErrors, setActionErrors] = useState<Record<string, string>>({});
+  const [pendingId, setPendingId] = useState<string | null>(null);
+  const [announcement, setAnnouncement] = useState("");
+  const orders = loadedOrders.map((order) => changedOrders[order.id] ?? order);
+
+  async function cancelOrder(order: Order) {
+    if (pendingId) return;
+    setPendingId(order.id);
+    setActionErrors((current) => ({ ...current, [order.id]: "" }));
+    try {
+      const updated = await cancelOwnOrder(order.id);
+      setChangedOrders((current) => ({ ...current, [order.id]: updated }));
+      setAnnouncement(
+        `Pedido ${order.id.slice(0, 8).toUpperCase()} cancelado.`,
+      );
+    } catch (caught) {
+      setActionErrors((current) => ({
+        ...current,
+        [order.id]:
+          caught instanceof ApiError && caught.status === 409
+            ? "Este pedido não pode mais ser cancelado. Clique em Atualizar para ver o status atual."
+            : "Não foi possível cancelar o pedido. Tente novamente.",
+      }));
+    } finally {
+      setPendingId(null);
+    }
+  }
+
+  function refreshOrders() {
+    setChangedOrders({});
+    setActionErrors({});
+    setAnnouncement("");
+    reload();
+  }
 
   return (
     <AppShell>
       <div className="space-y-8">
+        <p role="status" className="sr-only">
+          {announcement}
+        </p>
         <PageHeader
           eyebrow="Suas entregas"
           title="Meus pedidos"
           description="Acompanhe o status e os detalhes das suas entregas."
           action={
-            <Link to="/orders/new" className={buttonVariants({ size: "lg" })}>
-              Novo pedido
-            </Link>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                variant="outline"
+                onClick={refreshOrders}
+                disabled={loading || pendingId !== null}
+              >
+                <RefreshCw aria-hidden="true" />
+                Atualizar
+              </Button>
+              <Link to="/orders/new" className={buttonVariants({ size: "lg" })}>
+                Novo pedido
+              </Link>
+            </div>
           }
         />
 
@@ -56,7 +111,13 @@ export function OrdersPage() {
           <ol className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
             {orders.map((order) => (
               <li key={order.id}>
-                <OrderCard order={order} />
+                <OrderCard
+                  order={order}
+                  pending={pendingId === order.id}
+                  actionsDisabled={pendingId !== null}
+                  error={actionErrors[order.id]}
+                  onCancel={cancelOrder}
+                />
               </li>
             ))}
           </ol>

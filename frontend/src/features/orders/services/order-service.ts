@@ -31,3 +31,7 @@ export function updateOrderStatus(orderId: string, status: OrderStatus) {
     body: JSON.stringify({ status }),
   });
 }
+
+export function cancelOwnOrder(orderId: string) {
+  return apiRequest<Order>(`/orders/${orderId}/cancel`, { method: "PATCH" });
+}

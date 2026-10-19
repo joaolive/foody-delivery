@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { CalendarDays, MapPin } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -15,9 +17,25 @@ import {
 import type { Order } from "@/features/orders/types/order";
 import { formatCurrency, formatDate } from "@/lib/format";
 
-export function OrderCard({ order }: { order: Order }) {
+type OrderCardProps = {
+  order: Order;
+  pending: boolean;
+  actionsDisabled: boolean;
+  error?: string;
+  onCancel: (order: Order) => void;
+};
+
+export function OrderCard({
+  order,
+  pending,
+  actionsDisabled,
+  error,
+  onCancel,
+}: OrderCardProps) {
+  const [confirming, setConfirming] = useState(false);
   const itemCount = orderItemCount(order);
   const total = orderTotal(order);
+  const canCancel = order.status === "RECEIVED" || order.status === "PREPARING";
 
   return (
     <Card className="h-full rounded-2xl shadow-sm ring-border/90">
@@ -65,6 +83,49 @@ export function OrderCard({ order }: { order: Order }) {
             </p>
           </div>
         </div>
+        {canCancel && (
+          <div className="space-y-3 border-t pt-4">
+            {confirming ? (
+              <>
+                <p className="text-sm font-medium">
+                  Deseja cancelar este pedido?
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    disabled={actionsDisabled}
+                    onClick={() => onCancel(order)}
+                  >
+                    {pending ? "Cancelando..." : "Confirmar cancelamento"}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    disabled={actionsDisabled}
+                    onClick={() => setConfirming(false)}
+                  >
+                    Voltar
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <Button
+                type="button"
+                variant="outline"
+                disabled={actionsDisabled}
+                onClick={() => setConfirming(true)}
+              >
+                Cancelar pedido
+              </Button>
+            )}
+            {error && (
+              <p role="alert" className="text-xs text-destructive">
+                {error}
+              </p>
+            )}
+          </div>
+        )}
       </CardContent>
     </Card>
   );

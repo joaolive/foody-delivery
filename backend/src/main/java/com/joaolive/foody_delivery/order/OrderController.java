@@ -70,4 +70,10 @@ public class OrderController {
 		return orderService.updateOrderStatus(id, request.status());
 	}
 
+	@PreAuthorize("hasRole('CLIENT')")
+	@PatchMapping("/{id}/cancel")
+	public OrderResponse cancelOwnOrder(@PathVariable UUID id, @CurrentUser UserContext user) {
+		return orderService.cancelOwnOrder(id, user.id());
+	}
+
 }

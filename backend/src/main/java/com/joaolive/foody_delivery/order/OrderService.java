@@ -60,4 +60,18 @@ public class OrderService {
 		order.changeStatus(status);
 		return OrderResponse.fromEntity(orderRepository.saveAndFlush(order));
 	}
+
+	@Transactional
+	public OrderResponse cancelOwnOrder(UUID orderId, UUID clientId) {
+		Order order = orderRepository.findById(orderId)
+				.orElseThrow(() -> new ResourceNotFoundException("Order not found: " + orderId));
+		if (!order.getClientId().equals(clientId)) {
+			throw new ResourceNotFoundException("Order not found: " + orderId);
+		}
+		if (order.getStatus() != OrderStatus.RECEIVED && order.getStatus() != OrderStatus.PREPARING) {
+			throw new InvalidOrderStatusTransitionException(order.getStatus(), OrderStatus.CANCELED);
+		}
+		order.changeStatus(OrderStatus.CANCELED);
+		return OrderResponse.fromEntity(orderRepository.saveAndFlush(order));
+	}
 }
