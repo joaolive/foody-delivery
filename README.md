@@ -2,26 +2,57 @@
 
 Mini rastreador de pedidos para o desafio Full-Stack. O backend usa Java 25, Spring Boot, PostgreSQL e Liquibase; o frontend usa React, TypeScript e Vite.
 
-## Executar no devcontainer
+## Pré-requisitos
 
-Antes de abrir o projeto no devcontainer, crie o arquivo local de configuração:
+Tenha o Docker instalado e em execução, com Docker Compose disponível. O devcontainer é opcional; para executar as aplicações diretamente no computador, também são necessários Java 25, Node.js 24 e OpenSSL.
+
+Crie o arquivo local de configuração, caso ainda não exista:
 
 ```bash
 cp backend/.env.example backend/.env
 ```
 
-Os valores do exemplo servem apenas para desenvolvimento local. `backend/.env` é ignorado pelo Git. Abra a pasta no devcontainer e, em terminais separados dentro dele, execute:
+Os valores do exemplo servem apenas para desenvolvimento local. `backend/.env` é ignorado pelo Git.
+
+## Executar no devcontainer
+
+Abra a pasta no devcontainer e, em terminais separados dentro dele, execute:
 
 ```bash
 ./generate-local-keys.sh
-cd backend && ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
+cd backend && ./mvnw spring-boot:run
 ```
 
 ```bash
 cd frontend && npm ci && npm run dev
 ```
 
-A interface fica em `http://localhost:5173`. O Vite encaminha `/api` ao backend na porta 8080. O perfil `dev` usa o PostgreSQL do devcontainer; o perfil padrão `test` usa H2 em memória. Ambos aplicam as mesmas migrações Liquibase e carregam dados de demonstração. As chaves RSA geradas são locais e ignoradas pelo Git.
+## Executar sem devcontainer
+
+Inicie apenas o PostgreSQL pelo Docker Compose:
+
+```bash
+docker compose -f .devcontainer/docker-compose.yml up -d db
+```
+
+Em um terminal no computador, carregue as variáveis locais e inicie o backend:
+
+```bash
+set -a
+source backend/.env
+set +a
+export SPRING_DATASOURCE_URL="jdbc:postgresql://localhost:5433/$POSTGRES_DB"
+./generate-local-keys.sh
+cd backend && ./mvnw spring-boot:run
+```
+
+Em outro terminal, inicie o frontend:
+
+```bash
+cd frontend && npm ci && npm run dev
+```
+
+A interface fica em `http://localhost:5173`. O Vite encaminha `/api` ao backend na porta 8080. O perfil padrão `dev` usa PostgreSQL; os testes selecionam explicitamente o perfil `test`, que usa H2 em memória. Ambos aplicam as mesmas migrações Liquibase e carregam dados de demonstração. As chaves RSA geradas são locais e ignoradas pelo Git.
 
 ## Contas de demonstração
 
