@@ -56,6 +56,7 @@ export function RegisterPage() {
             <FieldLabel htmlFor="register-name">Nome</FieldLabel>
             <Input
               id="register-name"
+              className="h-11 px-3.5"
               autoComplete="name"
               required
               value={name}
@@ -67,6 +68,7 @@ export function RegisterPage() {
             <Input
               id="register-email"
               type="email"
+              className="h-11 px-3.5"
               autoComplete="email"
               required
               value={email}
@@ -78,6 +80,7 @@ export function RegisterPage() {
             <Input
               id="register-password"
               type="password"
+              className="h-11 px-3.5"
               autoComplete="new-password"
               minLength={8}
               maxLength={32}
@@ -93,7 +96,7 @@ export function RegisterPage() {
         <Button
           type="submit"
           size="lg"
-          className="w-full"
+          className="h-11 w-full"
           disabled={submitting}
         >
           {submitting ? "Criando conta..." : "Criar conta"}
@@ -102,7 +105,7 @@ export function RegisterPage() {
           Já tem uma conta?{" "}
           <Link
             to="/login"
-            className="font-medium text-foreground underline underline-offset-4"
+            className="font-semibold text-primary underline underline-offset-4 hover:text-primary/80"
           >
             Entrar
           </Link>

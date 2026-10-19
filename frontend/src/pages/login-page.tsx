@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from "react";
+import { CircleCheck } from "lucide-react";
 import { Link, Navigate, useNavigate, useSearchParams } from "react-router";
 
 import { Button } from "@/components/ui/button";
@@ -52,7 +53,11 @@ export function LoginPage() {
     >
       <form onSubmit={handleSubmit} className="space-y-5">
         {searchParams.has("registered") && (
-          <p role="status" className="rounded-lg bg-muted px-3 py-2 text-sm">
+          <p
+            role="status"
+            className="flex items-center gap-2 rounded-lg border border-emerald-500/25 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-800 dark:text-emerald-300"
+          >
+            <CircleCheck aria-hidden="true" className="size-4 shrink-0" />
             Conta criada. Entre com seus dados.
           </p>
         )}
@@ -63,6 +68,7 @@ export function LoginPage() {
             <Input
               id="login-email"
               type="email"
+              className="h-11 px-3.5"
               autoComplete="email"
               required
               value={email}
@@ -74,6 +80,7 @@ export function LoginPage() {
             <Input
               id="login-password"
               type="password"
+              className="h-11 px-3.5"
               autoComplete="current-password"
               required
               value={password}
@@ -84,7 +91,7 @@ export function LoginPage() {
         <Button
           type="submit"
           size="lg"
-          className="w-full"
+          className="h-11 w-full"
           disabled={submitting}
         >
           {submitting ? "Entrando..." : "Entrar"}
@@ -93,7 +100,7 @@ export function LoginPage() {
           Ainda não tem uma conta?{" "}
           <Link
             to="/register"
-            className="font-medium text-foreground underline underline-offset-4"
+            className="font-semibold text-primary underline underline-offset-4 hover:text-primary/80"
           >
             Cadastre-se
           </Link>
