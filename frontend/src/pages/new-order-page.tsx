@@ -107,16 +107,20 @@ export function NewOrderPage() {
             <h2 id="products-heading" className="text-lg font-semibold">
               Produtos
             </h2>
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
               {products.map((product) => {
                 const quantity = quantities[product.id] ?? 0;
                 return (
-                  <ProductCard key={product.id} product={product}>
-                    <div className="flex items-center justify-between gap-3">
-                      <span className="text-sm text-muted-foreground">
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    selected={quantity > 0}
+                  >
+                    <div className="flex w-full items-center justify-between gap-3">
+                      <span className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
                         Quantidade
                       </span>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1.5">
                         <Button
                           type="button"
                           variant="outline"
@@ -129,7 +133,7 @@ export function NewOrderPage() {
                         </Button>
                         <span
                           aria-live="polite"
-                          className="w-6 text-center text-sm font-medium"
+                          className="min-w-7 text-center text-sm font-semibold tabular-nums"
                         >
                           {quantity}
                         </span>
@@ -183,18 +187,24 @@ export function NewOrderPage() {
             )}
           </section>
 
-          <Card className="lg:sticky lg:top-6">
+          <Card className="shadow-sm lg:sticky lg:top-6">
             <CardHeader>
               <CardTitle>
                 <h2 className="text-lg font-semibold">Resumo do pedido</h2>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-5">
-              <div className="flex justify-between gap-4 text-sm">
-                <span className="text-muted-foreground">
-                  {itemCount} {itemCount === 1 ? "item" : "itens"}
-                </span>
-                <strong>{formatCurrency(total)}</strong>
+              <div className="rounded-xl bg-secondary/70 p-4">
+                <p className="text-xs font-semibold tracking-wide text-secondary-foreground uppercase">
+                  Total do pedido
+                </p>
+                <p className="mt-1 text-2xl font-bold text-primary tabular-nums">
+                  {formatCurrency(total)}
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {itemCount}{" "}
+                  {itemCount === 1 ? "item selecionado" : "itens selecionados"}
+                </p>
               </div>
               <Field>
                 <FieldLabel htmlFor="delivery-address">

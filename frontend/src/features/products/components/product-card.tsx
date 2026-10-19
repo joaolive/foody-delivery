@@ -2,8 +2,8 @@ import type { ReactNode } from "react";
 
 import {
   Card,
-  CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -17,16 +17,21 @@ import { formatCurrency } from "@/lib/format";
 export function ProductCard({
   product,
   children,
+  selected = false,
 }: {
   product: Product;
   children?: ReactNode;
+  selected?: boolean;
 }) {
   return (
-    <Card className="h-full">
+    <Card
+      data-selected={selected || undefined}
+      className="h-full rounded-2xl shadow-sm ring-border/90 transition-shadow duration-200 hover:shadow-md data-[selected=true]:ring-2 data-[selected=true]:ring-primary/70"
+    >
       <img
         src={resolveProductImageUrl(product.imageUrl)}
         alt={`Foto de ${product.name}`}
-        className="aspect-[4/3] w-full bg-muted object-cover"
+        className="aspect-[4/3] w-full rounded-t-2xl bg-muted object-cover"
         loading="lazy"
         decoding="async"
         onError={(event) => {
@@ -41,13 +46,20 @@ export function ProductCard({
       />
       <CardHeader className="gap-2">
         <CardTitle>
-          <h3 className="text-base font-semibold">{product.name}</h3>
+          <h3 className="text-lg font-semibold tracking-tight">
+            {product.name}
+          </h3>
         </CardTitle>
-        <CardDescription className="font-medium text-foreground">
-          {formatCurrency(product.price)}
+        <CardDescription className="flex items-baseline gap-2">
+          <strong className="text-lg font-bold text-primary tabular-nums">
+            {formatCurrency(product.price)}
+          </strong>
+          <span className="text-xs">por unidade</span>
         </CardDescription>
       </CardHeader>
-      {children && <CardContent className="mt-auto">{children}</CardContent>}
+      {children && (
+        <CardFooter className="mt-auto bg-muted/30">{children}</CardFooter>
+      )}
     </Card>
   );
 }
