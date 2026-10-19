@@ -1,7 +1,7 @@
 import { ChevronDown, MapPin } from "lucide-react";
 import { Link } from "react-router";
 
-import { buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button-variants";
 import {
   Card,
   CardContent,

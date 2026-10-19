@@ -4,7 +4,7 @@ import { Link, NavLink, useLocation, useNavigate } from "react-router";
 
 import { BrandMark } from "@/components/common/brand-mark";
 import { UserMenu } from "@/components/common/user-menu";
-import { buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button-variants";
 import {
   DropdownMenu,
   DropdownMenuContent,

@@ -4,7 +4,8 @@ import { Link, useLocation } from "react-router";
 
 import { AppShell } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/common/page-header";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button-variants";
 import { Card, CardContent } from "@/components/ui/card";
 import { OrderCard } from "@/features/orders/components/order-card";
 import {
