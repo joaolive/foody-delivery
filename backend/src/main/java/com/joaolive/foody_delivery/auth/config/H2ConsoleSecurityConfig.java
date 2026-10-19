@@ -11,13 +11,13 @@ import org.springframework.security.web.SecurityFilterChain;
 @Profile("test")
 public class H2ConsoleSecurityConfig {
 
-  @Bean
-  @Order(2)
-  SecurityFilterChain h2ConsoleSecurityFilterChain(HttpSecurity http) throws Exception {
-    http.securityMatcher("/h2-console", "/h2-console/**");
-    http.authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll());
-    http.csrf(csrf -> csrf.disable());
-    http.headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()));
-    return http.build();
-  }
+	@Bean
+	@Order(2)
+	SecurityFilterChain h2ConsoleSecurityFilterChain(HttpSecurity http) throws Exception {
+		http.securityMatcher("/h2-console", "/h2-console/**");
+		http.authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll());
+		http.csrf(csrf -> csrf.disable());
+		http.headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()));
+		return http.build();
+	}
 }

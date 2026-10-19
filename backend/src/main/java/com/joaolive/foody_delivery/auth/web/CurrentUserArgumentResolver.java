@@ -12,33 +12,27 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
 public class CurrentUserArgumentResolver implements HandlerMethodArgumentResolver {
-  @Override
-  public boolean supportsParameter(MethodParameter parameter) {
-    return parameter.getParameterAnnotation(CurrentUser.class) != null
-        && parameter.getParameterType().equals(UserContext.class);
-  }
+	@Override
+	public boolean supportsParameter(MethodParameter parameter) {
+		return parameter.getParameterAnnotation(CurrentUser.class) != null
+				&& parameter.getParameterType().equals(UserContext.class);
+	}
 
-  @Override
-  public Object resolveArgument(
-      MethodParameter parameter,
-      ModelAndViewContainer mavContainer,
-      NativeWebRequest webRequest,
-      WebDataBinderFactory binderFactory)
-      throws Exception {
-    Principal principal = webRequest.getUserPrincipal();
-    if (principal instanceof Authentication authentication
-        && authentication.getPrincipal() instanceof Jwt jwt) {
-      String userId = jwt.getClaimAsString("user_id");
-      String username = jwt.getClaimAsString("username");
-      if (StringUtils.hasText(userId) && StringUtils.hasText(username)) {
-        try {
-          return new UserContext(UUID.fromString(userId), username);
-        } catch (IllegalArgumentException ex) {
-          throw new InvalidUserIdentityException(
-              "Invalid or missing user identity in request context");
-        }
-      }
-    }
-    throw new InvalidUserIdentityException("Invalid or missing user identity in request context");
-  }
+	@Override
+	public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
+			NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
+		Principal principal = webRequest.getUserPrincipal();
+		if (principal instanceof Authentication authentication && authentication.getPrincipal() instanceof Jwt jwt) {
+			String userId = jwt.getClaimAsString("user_id");
+			String username = jwt.getClaimAsString("username");
+			if (StringUtils.hasText(userId) && StringUtils.hasText(username)) {
+				try {
+					return new UserContext(UUID.fromString(userId), username);
+				} catch (IllegalArgumentException ex) {
+					throw new InvalidUserIdentityException("Invalid or missing user identity in request context");
+				}
+			}
+		}
+		throw new InvalidUserIdentityException("Invalid or missing user identity in request context");
+	}
 }

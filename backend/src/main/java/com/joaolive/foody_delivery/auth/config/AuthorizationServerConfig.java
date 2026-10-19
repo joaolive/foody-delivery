@@ -31,109 +31,92 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 public class AuthorizationServerConfig {
 
-  @Value("${security.client-id}")
-  private String clientId;
+	@Value("${security.client-id}")
+	private String clientId;
 
-  @Value("${security.client-secret}")
-  private String clientSecret;
+	@Value("${security.client-secret}")
+	private String clientSecret;
 
-  @Value("${security.jwt.duration:900}")
-  private Integer jwtDurationSeconds;
+	@Value("${security.jwt.duration:900}")
+	private Integer jwtDurationSeconds;
 
-  private final UserDetailsService userDetailsService;
+	private final UserDetailsService userDetailsService;
 
-  private final PasswordEncoder passwordEncoder;
+	private final PasswordEncoder passwordEncoder;
 
-  public AuthorizationServerConfig(
-      UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
-    this.userDetailsService = userDetailsService;
-    this.passwordEncoder = passwordEncoder;
-  }
+	public AuthorizationServerConfig(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
+		this.userDetailsService = userDetailsService;
+		this.passwordEncoder = passwordEncoder;
+	}
 
-  @Bean
-  @Order(1)
-  SecurityFilterChain asSecurityFilterChain(
-      HttpSecurity http,
-      OAuth2AuthorizationService authorizationService,
-      OAuth2TokenGenerator<? extends OAuth2Token> tokenGenerator)
-      throws Exception {
-    OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
-        new OAuth2AuthorizationServerConfigurer();
+	@Bean
+	@Order(1)
+	SecurityFilterChain asSecurityFilterChain(HttpSecurity http, OAuth2AuthorizationService authorizationService,
+			OAuth2TokenGenerator<? extends OAuth2Token> tokenGenerator) throws Exception {
+		OAuth2AuthorizationServerConfigurer authorizationServerConfigurer = new OAuth2AuthorizationServerConfigurer();
 
-    http.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher());
-    http.with(
-        authorizationServerConfigurer,
-        authorizationServer ->
-            authorizationServer.tokenEndpoint(
-                tokenEndpoint ->
-                    tokenEndpoint
-                        .accessTokenRequestConverter(new PasswordGrantAuthenticationConverter())
-                        .authenticationProvider(
-                            new PasswordGrantAuthenticationProvider(
-                                authorizationService,
-                                tokenGenerator,
-                                userDetailsService,
-                                passwordEncoder))));
-    http.authorizeHttpRequests(
-        authorize ->
-            authorize
-                .requestMatchers("/oauth2/jwks", "/.well-known/oauth-authorization-server")
-                .permitAll()
-                .anyRequest()
-                .authenticated());
+		http.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher());
+		http.with(authorizationServerConfigurer,
+				authorizationServer -> authorizationServer.tokenEndpoint(tokenEndpoint -> tokenEndpoint
+						.accessTokenRequestConverter(new PasswordGrantAuthenticationConverter())
+						.authenticationProvider(new PasswordGrantAuthenticationProvider(authorizationService,
+								tokenGenerator, userDetailsService, passwordEncoder))));
+		http.authorizeHttpRequests(
+				authorize -> authorize.requestMatchers("/oauth2/jwks", "/.well-known/oauth-authorization-server")
+						.permitAll().anyRequest().authenticated());
 
-    return http.build();
-  }
+		return http.build();
+	}
 
-  @Bean
-  OAuth2AuthorizationService authorizationService() {
-    return new InMemoryOAuth2AuthorizationService();
-  }
+	@Bean
+	OAuth2AuthorizationService authorizationService() {
+		return new InMemoryOAuth2AuthorizationService();
+	}
 
-  @Bean
-  OAuth2AuthorizationConsentService oAuth2AuthorizationConsentService() {
-    return new InMemoryOAuth2AuthorizationConsentService();
-  }
+	@Bean
+	OAuth2AuthorizationConsentService oAuth2AuthorizationConsentService() {
+		return new InMemoryOAuth2AuthorizationConsentService();
+	}
 
-  @Bean
-  RegisteredClientRepository registeredClientRepository() {
-    // @formatter:off
-    RegisteredClient registeredClient =
-        RegisteredClient.withId(clientId)
-            .clientId(clientId)
-            .clientSecret(passwordEncoder.encode(clientSecret))
-            .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-            .scope("read")
-            .scope("write")
-            .authorizationGrantType(new AuthorizationGrantType("password"))
-            .tokenSettings(tokenSettings())
-            .clientSettings(clientSettings())
-            .build();
-    // @formatter:on
+	@Bean
+	RegisteredClientRepository registeredClientRepository() {
+		// @formatter:off
+		RegisteredClient registeredClient =
+			RegisteredClient.withId(clientId)
+				.clientId(clientId)
+				.clientSecret(passwordEncoder.encode(clientSecret))
+				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+				.scope("read")
+				.scope("write")
+				.authorizationGrantType(new AuthorizationGrantType("password"))
+				.tokenSettings(tokenSettings())
+				.clientSettings(clientSettings())
+				.build();
+		// @formatter:on
 
-    return new InMemoryRegisteredClientRepository(registeredClient);
-  }
+		return new InMemoryRegisteredClientRepository(registeredClient);
+	}
 
-  @Bean
-  TokenSettings tokenSettings() {
-    if (jwtDurationSeconds == null || jwtDurationSeconds <= 0) {
-      throw new IllegalArgumentException("security.jwt.duration must be positive");
-    }
-    // @formatter:off
-    return TokenSettings.builder()
-        .accessTokenFormat(OAuth2TokenFormat.SELF_CONTAINED)
-        .accessTokenTimeToLive(Duration.ofSeconds(jwtDurationSeconds))
-        .build();
-    // @formatter:on
-  }
+	@Bean
+	TokenSettings tokenSettings() {
+		if (jwtDurationSeconds == null || jwtDurationSeconds <= 0) {
+			throw new IllegalArgumentException("security.jwt.duration must be positive");
+		}
+		// @formatter:off
+		return TokenSettings.builder()
+			.accessTokenFormat(OAuth2TokenFormat.SELF_CONTAINED)
+			.accessTokenTimeToLive(Duration.ofSeconds(jwtDurationSeconds))
+			.build();
+		// @formatter:on
+	}
 
-  @Bean
-  ClientSettings clientSettings() {
-    return ClientSettings.builder().build();
-  }
+	@Bean
+	ClientSettings clientSettings() {
+		return ClientSettings.builder().build();
+	}
 
-  @Bean
-  AuthorizationServerSettings authorizationServerSettings() {
-    return AuthorizationServerSettings.builder().build();
-  }
+	@Bean
+	AuthorizationServerSettings authorizationServerSettings() {
+		return AuthorizationServerSettings.builder().build();
+	}
 }

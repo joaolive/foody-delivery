@@ -6,6 +6,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 class FoodyDeliveryApplicationTests {
 
-  @Test
-  void contextLoads() {}
+	@Test
+	void contextLoads() {
+	}
 }

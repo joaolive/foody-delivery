@@ -5,3 +5,18 @@ databaseChangeLog:
   - include:
       file: 2026-10-18-002-seed-demo-users.sql
       relativeToChangelogFile: true
+  - include:
+      file: 2026-10-18-003-create-product.sql
+      relativeToChangelogFile: true
+  - include:
+      file: 2026-10-18-004-create-order.sql
+      relativeToChangelogFile: true
+  - include:
+      file: 2026-10-18-005-create-order-item.sql
+      relativeToChangelogFile: true
+  - include:
+      file: 2026-10-18-006-allow-null-order-updated-at.sql
+      relativeToChangelogFile: true
+  - include:
+      file: 2026-10-18-007-convert-user-role-to-string.sql
+      relativeToChangelogFile: true
