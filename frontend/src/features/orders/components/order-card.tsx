@@ -6,18 +6,16 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { OrderStatusBadge } from "@/features/orders/components/order-status-badge";
+import {
+  orderItemCount,
+  orderTotal,
+} from "@/features/orders/lib/order-summary";
 import type { Order } from "@/features/orders/types/order";
 import { formatCurrency, formatDate } from "@/lib/format";
 
 export function OrderCard({ order }: { order: Order }) {
-  const itemCount = order.items.reduce(
-    (count, item) => count + item.quantity,
-    0,
-  );
-  const total = order.items.reduce(
-    (amount, item) => amount + item.unitPrice * item.quantity,
-    0,
-  );
+  const itemCount = orderItemCount(order);
+  const total = orderTotal(order);
 
   return (
     <Card>

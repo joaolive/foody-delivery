@@ -1,5 +1,13 @@
 import type { OrderStatus } from "@/features/orders/types/order";
 
+export const orderStatuses: OrderStatus[] = [
+  "RECEIVED",
+  "PREPARING",
+  "OUT_FOR_DELIVERY",
+  "DELIVERED",
+  "CANCELED",
+];
+
 export const orderStatusLabels: Record<OrderStatus, string> = {
   RECEIVED: "Recebido",
   PREPARING: "Em preparo",
@@ -17,4 +25,20 @@ export const orderStatusClasses: Record<OrderStatus, string> = {
   DELIVERED:
     "border-emerald-500/30 bg-emerald-500/10 text-emerald-800 dark:text-emerald-300",
   CANCELED: "border-border bg-muted text-muted-foreground",
+};
+
+export const orderStatusDotClasses: Record<OrderStatus, string> = {
+  RECEIVED: "bg-sky-500",
+  PREPARING: "bg-amber-500",
+  OUT_FOR_DELIVERY: "bg-violet-500",
+  DELIVERED: "bg-emerald-500",
+  CANCELED: "bg-muted-foreground",
+};
+
+export const nextOrderStatuses: Record<OrderStatus, OrderStatus[]> = {
+  RECEIVED: ["PREPARING", "CANCELED"],
+  PREPARING: ["OUT_FOR_DELIVERY", "CANCELED"],
+  OUT_FOR_DELIVERY: ["DELIVERED", "CANCELED"],
+  DELIVERED: [],
+  CANCELED: [],
 };

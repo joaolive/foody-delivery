@@ -1,4 +1,8 @@
-import type { CreateOrderData, Order } from "@/features/orders/types/order";
+import type {
+  CreateOrderData,
+  Order,
+  OrderStatus,
+} from "@/features/orders/types/order";
 import { apiRequest } from "@/lib/api-client";
 import type { PageResult } from "@/lib/pagination";
 
@@ -8,9 +12,22 @@ export function fetchMyOrders(page: number, signal: AbortSignal) {
   });
 }
 
+export function fetchAllOrders(page: number, signal: AbortSignal) {
+  return apiRequest<PageResult<Order>>(`/orders?page=${page}&size=20`, {
+    signal,
+  });
+}
+
 export function createOrder(data: CreateOrderData) {
   return apiRequest<Order>("/orders", {
     method: "POST",
     body: JSON.stringify(data),
+  });
+}
+
+export function updateOrderStatus(orderId: string, status: OrderStatus) {
+  return apiRequest<Order>(`/orders/${orderId}/status`, {
+    method: "PATCH",
+    body: JSON.stringify({ status }),
   });
 }

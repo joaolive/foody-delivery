@@ -3,7 +3,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router";
 import { AuthProvider } from "@/features/auth/components/auth-provider";
 import { ProtectedRoute } from "@/features/auth/components/protected-route";
 import { useAuth } from "@/features/auth/hooks/use-auth";
-import { HomePage } from "@/pages/home-page";
+import { AdminOrdersPage } from "@/pages/admin-orders-page";
 import { LoginPage } from "@/pages/login-page";
 import { NewOrderPage } from "@/pages/new-order-page";
 import { OrdersPage } from "@/pages/orders-page";
@@ -53,7 +53,7 @@ function App() {
             path="/admin/orders"
             element={
               <ProtectedRoute role="ADMIN">
-                <HomePage />
+                <AdminOrdersPage />
               </ProtectedRoute>
             }
           />
