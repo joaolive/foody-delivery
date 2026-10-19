@@ -1,6 +1,5 @@
 package com.joaolive.foody_delivery.auth.config;
 
-import com.joaolive.foody_delivery.auth.AuthenticatedUser;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.JWKSource;
@@ -15,25 +14,14 @@ import java.security.interfaces.RSAPublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
-import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
-import org.springframework.security.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
-import org.springframework.security.oauth2.core.OAuth2Token;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
-import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
-import org.springframework.security.oauth2.server.authorization.token.DelegatingOAuth2TokenGenerator;
-import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext;
-import org.springframework.security.oauth2.server.authorization.token.JwtGenerator;
-import org.springframework.security.oauth2.server.authorization.token.OAuth2AccessTokenGenerator;
-import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
-import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenGenerator;
 import org.springframework.util.StringUtils;
 
 @Configuration
@@ -49,47 +37,26 @@ public class JwtConfig {
 	private String rsaKeyId;
 
 	@Bean
-	OAuth2TokenGenerator<? extends OAuth2Token> tokenGenerator(JwtEncoder jwtEncoder,
-			OAuth2TokenCustomizer<JwtEncodingContext> tokenCustomizer) {
-		JwtGenerator jwtGenerator = new JwtGenerator(jwtEncoder);
-		jwtGenerator.setJwtCustomizer(tokenCustomizer);
-		OAuth2AccessTokenGenerator accessTokenGenerator = new OAuth2AccessTokenGenerator();
-		return new DelegatingOAuth2TokenGenerator(jwtGenerator, accessTokenGenerator);
-	}
-
-	@Bean
 	JwtEncoder jwtEncoder(JWKSource<SecurityContext> jwkSource) {
 		return new NimbusJwtEncoder(jwkSource);
 	}
 
 	@Bean
-	OAuth2TokenCustomizer<JwtEncodingContext> tokenCustomizer() {
-		return context -> {
-			if (!OAuth2TokenType.ACCESS_TOKEN.equals(context.getTokenType())) {
-				return;
-			}
-			if (!(context.getPrincipal().getPrincipal() instanceof AuthenticatedUser user)) {
-				throw new OAuth2AuthenticationException(OAuth2ErrorCodes.SERVER_ERROR);
-			}
-			List<String> authorities = user.getAuthorities().stream().map(authority -> authority.getAuthority())
-					.toList();
-			context.getClaims().subject(user.getId().toString()).claim("authorities", authorities)
-					.claim("username", user.getUsername()).claim("user_id", user.getId().toString());
-		};
+	JwtDecoder jwtDecoder(RSAPublicKey publicKey) {
+		return NimbusJwtDecoder.withPublicKey(publicKey).build();
 	}
 
 	@Bean
-	JwtDecoder jwtDecoder(JWKSource<SecurityContext> jwkSource) {
-		return OAuth2AuthorizationServerConfiguration.jwtDecoder(jwkSource);
+	RSAPublicKey publicKey() throws IOException, GeneralSecurityException {
+		return (RSAPublicKey) KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(
+				decodePem(publicKeyResource, "-----BEGIN PUBLIC KEY-----", "-----END PUBLIC KEY-----")));
 	}
 
 	@Bean
-	JWKSource<SecurityContext> jwkSource() throws IOException, GeneralSecurityException {
+	JWKSource<SecurityContext> jwkSource(RSAPublicKey publicKey) throws IOException, GeneralSecurityException {
 		RSAPrivateKey privateKey = (RSAPrivateKey) KeyFactory.getInstance("RSA")
 				.generatePrivate(new PKCS8EncodedKeySpec(
 						decodePem(privateKeyResource, "-----BEGIN PRIVATE KEY-----", "-----END PRIVATE KEY-----")));
-		RSAPublicKey publicKey = (RSAPublicKey) KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(
-				decodePem(publicKeyResource, "-----BEGIN PUBLIC KEY-----", "-----END PUBLIC KEY-----")));
 		if (!privateKey.getModulus().equals(publicKey.getModulus())) {
 			throw new IllegalArgumentException("The RSA private and public keys do not match");
 		}

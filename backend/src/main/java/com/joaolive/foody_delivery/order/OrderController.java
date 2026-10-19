@@ -33,7 +33,7 @@ public class OrderController {
 		this.orderService = orderService;
 	}
 
-	@PreAuthorize("hasAnyRole('ADMIN', 'CLIENT')")
+	@PreAuthorize("hasRole('CLIENT')")
 	@PostMapping
 	public ResponseEntity<OrderResponse> createOrder(@Valid @RequestBody CreateOrderRequest request,
 			@CurrentUser UserContext user) {
@@ -43,7 +43,7 @@ public class OrderController {
 		return ResponseEntity.created(location).body(order);
 	}
 
-	@PreAuthorize("hasAnyRole('ADMIN', 'CLIENT')")
+	@PreAuthorize("hasRole('CLIENT')")
 	@GetMapping("/mine")
 	public Page<OrderResponse> findOrdersForUser(@CurrentUser UserContext user,
 			@PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {

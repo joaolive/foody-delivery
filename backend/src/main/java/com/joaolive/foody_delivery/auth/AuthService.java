@@ -5,16 +5,17 @@ import com.joaolive.foody_delivery.auth.dto.LoginResponse;
 import com.joaolive.foody_delivery.user.User;
 import com.joaolive.foody_delivery.user.UserRepository;
 import com.joaolive.foody_delivery.user.dto.UserResponse;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Locale;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.security.oauth2.jwt.JwsHeader;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
-import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,14 +24,17 @@ public class AuthService {
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
 	private final JwtEncoder jwtEncoder;
-	private final TokenSettings tokenSettings;
+	private final Duration tokenDuration;
 
 	public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtEncoder jwtEncoder,
-			TokenSettings tokenSettings) {
+			@Value("${security.jwt.duration:900}") int tokenDurationSeconds) {
+		if (tokenDurationSeconds <= 0) {
+			throw new IllegalArgumentException("security.jwt.duration must be positive");
+		}
 		this.userRepository = userRepository;
 		this.passwordEncoder = passwordEncoder;
 		this.jwtEncoder = jwtEncoder;
-		this.tokenSettings = tokenSettings;
+		this.tokenDuration = Duration.ofSeconds(tokenDurationSeconds);
 	}
 
 	@Transactional(readOnly = true)
@@ -42,7 +46,7 @@ public class AuthService {
 		}
 
 		Instant issuedAt = Instant.now();
-		Instant expiresAt = issuedAt.plus(tokenSettings.getAccessTokenTimeToLive());
+		Instant expiresAt = issuedAt.plus(tokenDuration);
 		String userId = user.getId().toString();
 		JwtClaimsSet claims = JwtClaimsSet.builder().subject(userId).issuedAt(issuedAt).expiresAt(expiresAt)
 				.claim("authorities", List.of("ROLE_" + user.getRole().name())).claim("username", user.getEmail())
