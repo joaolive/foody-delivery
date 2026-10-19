@@ -3,7 +3,6 @@ package com.joaolive.foody_delivery.user;
 import com.joaolive.foody_delivery.user.dto.UserDTO;
 import com.joaolive.foody_delivery.user.dto.UserInsertDTO;
 import java.util.Locale;
-import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,12 +11,10 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 	private final UserRepository repository;
 	private final PasswordEncoder passwordEncoder;
-	private final ModelMapper modelMapper;
 
-	public UserService(UserRepository repository, PasswordEncoder passwordEncoder, ModelMapper modelMapper) {
+	public UserService(UserRepository repository, PasswordEncoder passwordEncoder) {
 		this.repository = repository;
 		this.passwordEncoder = passwordEncoder;
-		this.modelMapper = modelMapper;
 	}
 
 	@Transactional
@@ -29,7 +26,7 @@ public class UserService {
 		String password = passwordEncoder.encode(dto.password());
 		User entity = new User(dto.name(), email, password);
 		entity = repository.save(entity);
-		return modelMapper.map(entity, UserDTO.class);
+		return new UserDTO(entity.getId(), entity.getName(), entity.getEmail(), entity.getRole());
 	}
 
 }

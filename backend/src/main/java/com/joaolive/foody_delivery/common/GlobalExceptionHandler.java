@@ -15,6 +15,14 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+	@ExceptionHandler(ResourceNotFoundException.class)
+	public ProblemDetail handleResourceNotFound(ResourceNotFoundException ex) {
+		ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+		problemDetail.setTitle("Resource Not Found");
+		problemDetail.setProperty("timestamp", Instant.now());
+		return problemDetail;
+	}
+
 	@ExceptionHandler(EmailAlreadyExistsException.class)
 	public ProblemDetail handleEmailAlreadyExists(EmailAlreadyExistsException ex) {
 		ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
