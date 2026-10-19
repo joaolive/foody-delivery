@@ -101,3 +101,14 @@ cd frontend && npm run build && npm run lint && npm run format:check
 ```
 
 As migrações são aplicadas automaticamente quando o backend inicia. Não é preciso executar SQL manualmente para os dados de demonstração.
+
+## Uso de inteligência artificial
+
+O OpenAI Codex foi usado como assistente de desenvolvimento para analisar requisitos, propor soluções e apoiar a implementação, a revisão e a documentação do projeto. O uso se concentrou nestas partes:
+
+- **Backend:** apoio na implementação e revisão das APIs de usuários, produtos, endereços e pedidos; análise das regras de acesso e do fluxo JWT; simplificação da autenticação com a remoção do Authorization Server que não era utilizado, mantendo o Resource Server.
+- **Frontend:** apoio nas telas de autenticação, catálogo, criação e acompanhamento de pedidos e administração, além de ajustes de navegação e responsividade.
+- **Testes e ambiente:** criação de testes unitários para regras de pedidos e testes de integração da API e das permissões; configuração do JaCoCo; revisão dos perfis, das migrações Liquibase e da execução com ou sem devcontainer.
+- **Revisão e documentação:** análise da organização e da qualidade do código, sugestões de simplificação e atualização deste README.
+
+O autor definiu os requisitos e as decisões de escopo. As alterações foram registradas em commits incrementais, e a verificação incluiu testes e build no devcontainer.
