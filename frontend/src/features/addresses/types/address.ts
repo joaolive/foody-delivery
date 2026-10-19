@@ -1,4 +1,4 @@
-export type SavedAddress = {
+export type Address = {
   id: string;
   address: string;
 };

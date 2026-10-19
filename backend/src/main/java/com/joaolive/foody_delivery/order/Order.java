@@ -31,8 +31,8 @@ public class Order {
 	@Column(name = "client_id")
 	private UUID clientId;
 
-	@Column(name = "address")
-	private String address;
+	@Column(name = "address_id", nullable = false)
+	private UUID addressId;
 
 	@Enumerated(EnumType.STRING)
 	private OrderStatus status;
@@ -51,10 +51,10 @@ public class Order {
 	protected Order() {
 	}
 
-	public Order(UUID clientId, String address) {
+	public Order(UUID clientId, UUID addressId) {
 		this.id = UUID.randomUUID();
 		this.clientId = clientId;
-		this.address = address;
+		this.addressId = addressId;
 		this.status = OrderStatus.RECEIVED;
 	}
 

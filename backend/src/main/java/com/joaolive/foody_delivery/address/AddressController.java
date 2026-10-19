@@ -17,10 +17,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/addresses")
-public class SavedAddressController {
-	private final SavedAddressService service;
+public class AddressController {
+	private final AddressService service;
 
-	public SavedAddressController(SavedAddressService service) {
+	public AddressController(AddressService service) {
 		this.service = service;
 	}
 

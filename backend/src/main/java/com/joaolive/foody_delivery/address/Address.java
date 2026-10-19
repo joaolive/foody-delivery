@@ -14,7 +14,7 @@ import lombok.Getter;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
 @Table(name = "tb_address")
-public class SavedAddress {
+public class Address {
 	@Id
 	@EqualsAndHashCode.Include
 	private UUID id;
@@ -28,10 +28,10 @@ public class SavedAddress {
 	@Column(name = "created_at", nullable = false)
 	private Instant createdAt;
 
-	protected SavedAddress() {
+	protected Address() {
 	}
 
-	public SavedAddress(UUID userId, String address) {
+	public Address(UUID userId, String address) {
 		this.id = UUID.randomUUID();
 		this.userId = userId;
 		this.address = address;

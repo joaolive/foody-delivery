@@ -10,6 +10,7 @@ export type OrderItem = {
 export type Order = {
   id: string;
   clientId: string;
+  addressId: string;
   address: string;
   status: OrderStatus;
   createdAt: string;

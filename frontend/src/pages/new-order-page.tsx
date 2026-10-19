@@ -9,10 +9,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  createSavedAddress,
-  fetchSavedAddresses,
+  createAddress,
+  fetchAddresses,
 } from "@/features/addresses/services/address-service";
-import type { SavedAddress } from "@/features/addresses/types/address";
+import type { Address } from "@/features/addresses/types/address";
 import { createOrder } from "@/features/orders/services/order-service";
 import { ProductCard } from "@/features/products/components/product-card";
 import { fetchProducts } from "@/features/products/services/product-service";
@@ -31,7 +31,7 @@ export function NewOrderPage() {
     retry,
   } = usePaginatedList(fetchProducts);
   const [quantities, setQuantities] = useState<Record<string, number>>({});
-  const [addresses, setAddresses] = useState<SavedAddress[]>([]);
+  const [addresses, setAddresses] = useState<Address[]>([]);
   const [addressesLoading, setAddressesLoading] = useState(true);
   const [addressesLoadError, setAddressesLoadError] = useState(false);
   const [addressRequestVersion, setAddressRequestVersion] = useState(0);
@@ -48,7 +48,7 @@ export function NewOrderPage() {
 
   useEffect(() => {
     const controller = new AbortController();
-    fetchSavedAddresses(controller.signal)
+    fetchAddresses(controller.signal)
       .then((result) => {
         if (!controller.signal.aborted) setAddresses(result);
       })
@@ -86,7 +86,7 @@ export function NewOrderPage() {
     setAddressSaveError("");
     setSavingAddress(true);
     try {
-      const saved = await createSavedAddress(address);
+      const saved = await createAddress(address);
       setAddresses((current) => [saved, ...current]);
       setSelectedAddressId(saved.id);
       setNewAddress("");

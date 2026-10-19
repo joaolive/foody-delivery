@@ -8,10 +8,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class SavedAddressService {
-	private final SavedAddressRepository repository;
+public class AddressService {
+	private final AddressRepository repository;
 
-	public SavedAddressService(SavedAddressRepository repository) {
+	public AddressService(AddressRepository repository) {
 		this.repository = repository;
 	}
 
@@ -22,7 +22,7 @@ public class SavedAddressService {
 
 	@Transactional
 	public AddressResponse create(CreateAddressRequest request, UUID userId) {
-		SavedAddress saved = repository.save(new SavedAddress(userId, request.address().strip()));
-		return AddressResponse.fromEntity(saved);
+		Address address = repository.save(new Address(userId, request.address().strip()));
+		return AddressResponse.fromEntity(address);
 	}
 }
