@@ -1,6 +1,7 @@
 package com.joaolive.foody_delivery.common;
 
 import com.joaolive.foody_delivery.auth.web.InvalidUserIdentityException;
+import com.joaolive.foody_delivery.user.EmailAlreadyExistsException;
 import java.net.URI;
 import java.time.Instant;
 import java.util.List;
@@ -14,6 +15,14 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+	@ExceptionHandler(EmailAlreadyExistsException.class)
+	public ProblemDetail handleEmailAlreadyExists(EmailAlreadyExistsException ex) {
+		ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+		problemDetail.setTitle("Email Already Registered");
+		problemDetail.setProperty("timestamp", Instant.now());
+		return problemDetail;
+	}
+
 	@ExceptionHandler(InvalidUserIdentityException.class)
 	public ProblemDetail handleInvalidUserIdentity(InvalidUserIdentityException ex) {
 		ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, ex.getMessage());

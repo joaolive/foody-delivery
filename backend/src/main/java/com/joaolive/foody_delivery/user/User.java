@@ -1,5 +1,6 @@
 package com.joaolive.foody_delivery.user;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -21,6 +22,7 @@ public class User {
 	@EqualsAndHashCode.Include
 	private UUID id;
 	private String name;
+	@Column(nullable = false, unique = true)
 	private String email;
 	private String password;
 	@Enumerated(EnumType.STRING)
@@ -30,12 +32,12 @@ public class User {
 	protected User() {
 	}
 
-	public User(String name, String email, String password, Role role) {
+	public User(String name, String email, String password) {
 		id = UUID.randomUUID();
 		this.name = name;
 		this.email = email;
 		this.password = password;
-		this.role = role;
+		role = Role.CLIENT;
 	}
 
 	@PrePersist
