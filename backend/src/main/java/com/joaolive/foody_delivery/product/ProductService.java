@@ -20,12 +20,13 @@ public class ProductService {
 	@Transactional(readOnly = true)
 	public ProductResponse findById(UUID id) {
 		Product entity = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Product not found"));
-		return new ProductResponse(entity.getId(), entity.getName(), entity.getPrice());
+		return new ProductResponse(entity.getId(), entity.getName(), entity.getPrice(), entity.getImageUrl());
 	}
 
 	@Transactional(readOnly = true)
 	public Page<ProductResponse> findAll(Pageable pageable, String name) {
 		Page<Product> products = repository.findByNameContainingIgnoreCase(name.strip(), pageable);
-		return products.map(product -> new ProductResponse(product.getId(), product.getName(), product.getPrice()));
+		return products.map(product -> new ProductResponse(product.getId(), product.getName(), product.getPrice(),
+				product.getImageUrl()));
 	}
 }

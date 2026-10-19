@@ -32,6 +32,12 @@ export function AppShell({
             Foody Delivery
           </Link>
           <div className="flex items-center gap-3">
+            <Link
+              to="/products"
+              className="text-sm text-muted-foreground hover:text-foreground"
+            >
+              Produtos
+            </Link>
             <span className="hidden text-sm text-muted-foreground sm:inline">
               {session.user.name}
             </span>

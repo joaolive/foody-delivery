@@ -35,7 +35,7 @@ public class ResourceServerConfig {
 		http.csrf(csrf -> csrf.disable());
 		http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 		http.authorizeHttpRequests(authorize -> authorize.requestMatchers(HttpMethod.POST, "/user", "/auth/login")
-				.permitAll().anyRequest().authenticated());
+				.permitAll().requestMatchers(HttpMethod.GET, "/images/**").permitAll().anyRequest().authenticated());
 		http.oauth2ResourceServer(oauth2ResourceServer -> oauth2ResourceServer
 				.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter)));
 		http.cors(cors -> cors.configurationSource(corsConfigurationSource));

@@ -1,6 +1,9 @@
 import { loadSession } from "@/features/auth/lib/auth-storage";
 
 export const UNAUTHORIZED_EVENT = "foody:unauthorized";
+export const API_BASE_URL = (
+  import.meta.env.VITE_API_BASE_URL ?? "/api"
+).replace(/\/$/, "");
 
 export class ApiError extends Error {
   readonly status: number;
@@ -22,11 +25,7 @@ export async function apiRequest<T>(
   const session = authenticated ? loadSession() : null;
   if (session) headers.set("Authorization", `Bearer ${session.accessToken}`);
 
-  const baseUrl = (import.meta.env.VITE_API_BASE_URL ?? "/api").replace(
-    /\/$/,
-    "",
-  );
-  const response = await fetch(`${baseUrl}${path}`, { ...init, headers });
+  const response = await fetch(`${API_BASE_URL}${path}`, { ...init, headers });
 
   if (!response.ok) {
     if (authenticated && response.status === 401) {

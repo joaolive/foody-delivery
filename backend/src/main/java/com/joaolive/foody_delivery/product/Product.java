@@ -21,14 +21,17 @@ public class Product {
 	private String name;
 	@Column(nullable = false, precision = 10, scale = 2)
 	private BigDecimal price;
+	@Column(name = "image_url", nullable = false, length = 2048)
+	private String imageUrl;
 
 	protected Product() {
 	}
 
-	public Product(String name, BigDecimal price) {
+	public Product(String name, BigDecimal price, String imageUrl) {
 		this.id = UUID.randomUUID();
 		this.name = name;
 		this.price = price;
+		this.imageUrl = imageUrl;
 	}
 
 	public void changePrice(BigDecimal price) {
