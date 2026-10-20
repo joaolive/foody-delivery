@@ -16,6 +16,7 @@ export type OrderSummary = {
 };
 
 export type Order = OrderSummary & {
+  clientName: string;
   addressId: string;
   address: string;
   items: OrderItem[];

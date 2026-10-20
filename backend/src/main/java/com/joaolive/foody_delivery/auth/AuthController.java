@@ -3,6 +3,7 @@ package com.joaolive.foody_delivery.auth;
 import com.joaolive.foody_delivery.auth.dto.LoginRequest;
 import com.joaolive.foody_delivery.auth.dto.LoginResponse;
 import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,7 +19,7 @@ public class AuthController {
 	}
 
 	@PostMapping("/login")
-	public LoginResponse login(@Valid @RequestBody LoginRequest request) {
-		return authService.login(request);
+	public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
+		return ResponseEntity.ok(authService.login(request));
 	}
 }

@@ -5,16 +5,18 @@ import com.joaolive.foody_delivery.auth.InvalidCredentialsException;
 import com.joaolive.foody_delivery.order.InvalidOrderStatusTransitionException;
 import com.joaolive.foody_delivery.user.EmailAlreadyExistsException;
 import jakarta.persistence.OptimisticLockException;
-import java.net.URI;
 import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -22,6 +24,8 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+	private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
 	@ExceptionHandler(InvalidCredentialsException.class)
 	public ProblemDetail handleInvalidCredentials(InvalidCredentialsException ex) {
 		ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, ex.getMessage());
@@ -102,7 +106,6 @@ public class GlobalExceptionHandler {
 		ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT,
 				"A database conflict or constraint violation occurred.");
 		problemDetail.setTitle("Resource Conflict");
-		problemDetail.setType(URI.create("https://api.javanews.com/errors/conflict"));
 		problemDetail.setProperty("timestamp", Instant.now());
 		return problemDetail;
 	}
@@ -114,7 +117,6 @@ public class GlobalExceptionHandler {
 		ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST,
 				"Invalid request payload");
 		problemDetail.setTitle("Bad Request");
-		problemDetail.setType(URI.create("https://api.javanews.com/errors/bad-request"));
 		problemDetail.setProperty("invalid_fields", errors);
 		problemDetail.setProperty("timestamp", Instant.now());
 		return problemDetail;
@@ -122,11 +124,15 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler(Exception.class)
 	public ProblemDetail handleUncaughtException(Exception ex) {
-		ex.printStackTrace();
+		if (ex instanceof ErrorResponse errorResponse) {
+			ProblemDetail problemDetail = errorResponse.getBody();
+			problemDetail.setProperty("timestamp", Instant.now());
+			return problemDetail;
+		}
+		log.error("Unhandled request exception", ex);
 		ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR,
 				"An unexpected internal server error occurred.");
 		problemDetail.setTitle("Internal Server Error");
-		problemDetail.setType(URI.create("https://api.javanews.com/errors/internal-server-error"));
 		problemDetail.setProperty("timestamp", Instant.now());
 		return problemDetail;
 	}

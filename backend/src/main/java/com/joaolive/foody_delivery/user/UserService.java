@@ -1,8 +1,10 @@
 package com.joaolive.foody_delivery.user;
 
+import com.joaolive.foody_delivery.common.ResourceNotFoundException;
 import com.joaolive.foody_delivery.user.dto.CreateUserRequest;
 import com.joaolive.foody_delivery.user.dto.UserResponse;
 import java.util.Locale;
+import java.util.UUID;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,4 +31,9 @@ public class UserService {
 		return new UserResponse(entity.getId(), entity.getName(), entity.getEmail(), entity.getRole());
 	}
 
+	@Transactional(readOnly = true)
+	public String findNameById(UUID userId) {
+		return repository.findById(userId)
+				.orElseThrow(() -> new ResourceNotFoundException("User not found: " + userId)).getName();
+	}
 }

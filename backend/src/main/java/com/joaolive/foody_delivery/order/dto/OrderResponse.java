@@ -8,13 +8,13 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
-public record OrderResponse(UUID id, UUID clientId, UUID addressId, String address, OrderStatus status,
+public record OrderResponse(UUID id, UUID clientId, String clientName, UUID addressId, String address, OrderStatus status,
 		Instant createdAt, Instant updatedAt, List<OrderItemResponse> items) {
-	public static OrderResponse fromEntity(Order order, String address) {
+	public static OrderResponse fromEntity(Order order, String address, String clientName) {
 		List<OrderItemResponse> items = order.getItems().stream()
 				.sorted(Comparator.comparing(item -> item.getId().getProductId())).map(OrderResponse::toItemResponse)
 				.toList();
-		return new OrderResponse(order.getId(), order.getClientId(), order.getAddressId(), address, order.getStatus(),
+		return new OrderResponse(order.getId(), order.getClientId(), clientName, order.getAddressId(), address, order.getStatus(),
 				order.getCreatedAt(), order.getUpdatedAt(), items);
 	}
 

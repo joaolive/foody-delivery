@@ -26,8 +26,8 @@ public class AddressController {
 
 	@PreAuthorize("hasAnyRole('ADMIN', 'CLIENT')")
 	@GetMapping
-	public List<AddressResponse> findForUser(@CurrentUser UserContext user) {
-		return service.findForUser(user.id());
+	public ResponseEntity<List<AddressResponse>> findForUser(@CurrentUser UserContext user) {
+		return ResponseEntity.ok(service.findForUser(user.id()));
 	}
 
 	@PreAuthorize("hasAnyRole('ADMIN', 'CLIENT')")

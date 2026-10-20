@@ -245,6 +245,7 @@ export function OrderDetailPage() {
                 {isAdmin ? (
                   <AdminOrderCard
                     order={order}
+                    clientName={order.clientName}
                     pending={pending}
                     actionsDisabled={pending}
                     linkTitle={false}

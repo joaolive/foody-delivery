@@ -46,35 +46,35 @@ public class OrderController {
 
 	@PreAuthorize("hasRole('CLIENT')")
 	@GetMapping("/mine")
-	public Page<OrderSummaryResponse> findOrdersForUser(@CurrentUser UserContext user,
+	public ResponseEntity<Page<OrderSummaryResponse>> findOrdersForUser(@CurrentUser UserContext user,
 			@PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
-		return orderService.findOrdersForUser(user.id(), pageable);
+		return ResponseEntity.ok(orderService.findOrdersForUser(user.id(), pageable));
 	}
 
 	@PreAuthorize("hasRole('ADMIN')")
 	@GetMapping
-	public Page<OrderSummaryResponse> findAllOrders(@RequestParam(required = false) UUID clientId,
+	public ResponseEntity<Page<OrderSummaryResponse>> findAllOrders(@RequestParam(required = false) UUID clientId,
 			@PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
-		return orderService.findAllOrders(clientId, pageable);
+		return ResponseEntity.ok(orderService.findAllOrders(clientId, pageable));
 	}
 
 	@PreAuthorize("hasAnyRole('ADMIN', 'CLIENT')")
 	@GetMapping("/{id}")
-	public OrderResponse findOrderById(@PathVariable UUID id, @CurrentUser UserContext user) {
-		return orderService.findOrderById(id, user.id(), user.hasRole("ADMIN"));
+	public ResponseEntity<OrderResponse> findOrderById(@PathVariable UUID id, @CurrentUser UserContext user) {
+		return ResponseEntity.ok(orderService.findOrderById(id, user.id(), user.hasRole("ADMIN")));
 	}
 
 	@PreAuthorize("hasRole('ADMIN')")
 	@PatchMapping("/{id}/status")
-	public OrderResponse updateOrderStatus(@PathVariable UUID id,
+	public ResponseEntity<OrderResponse> updateOrderStatus(@PathVariable UUID id,
 			@Valid @RequestBody UpdateOrderStatusRequest request) {
-		return orderService.updateOrderStatus(id, request.status());
+		return ResponseEntity.ok(orderService.updateOrderStatus(id, request.status()));
 	}
 
 	@PreAuthorize("hasRole('CLIENT')")
 	@PatchMapping("/{id}/cancel")
-	public OrderResponse cancelOwnOrder(@PathVariable UUID id, @CurrentUser UserContext user) {
-		return orderService.cancelOwnOrder(id, user.id());
+	public ResponseEntity<OrderResponse> cancelOwnOrder(@PathVariable UUID id, @CurrentUser UserContext user) {
+		return ResponseEntity.ok(orderService.cancelOwnOrder(id, user.id()));
 	}
 
 }

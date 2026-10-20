@@ -16,6 +16,7 @@ import com.joaolive.foody_delivery.order.dto.CreateOrderRequest;
 import com.joaolive.foody_delivery.order.dto.OrderResponse;
 import com.joaolive.foody_delivery.product.Product;
 import com.joaolive.foody_delivery.product.ProductRepository;
+import com.joaolive.foody_delivery.user.UserService;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
@@ -26,7 +27,9 @@ class OrderServiceTest {
 	private final OrderRepository orderRepository = mock(OrderRepository.class);
 	private final ProductRepository productRepository = mock(ProductRepository.class);
 	private final AddressRepository addressRepository = mock(AddressRepository.class);
-	private final OrderService service = new OrderService(orderRepository, productRepository, addressRepository);
+	private final UserService userService = mock(UserService.class);
+	private final OrderService service = new OrderService(orderRepository, productRepository, addressRepository,
+			userService);
 
 	@Test
 	void createOrderUsesOwnedAddressAndCatalogPrice() {
@@ -36,12 +39,14 @@ class OrderServiceTest {
 		when(addressRepository.findByIdAndUserId(address.getId(), clientId)).thenReturn(Optional.of(address));
 		when(productRepository.findById(product.getId())).thenReturn(Optional.of(product));
 		when(orderRepository.saveAndFlush(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
+		when(userService.findNameById(clientId)).thenReturn("Maria Brown");
 
 		OrderResponse result = service.createOrder(
 				new CreateOrderRequest(address.getId(), List.of(new CreateOrderItemRequest(product.getId(), 2))),
 				clientId);
 
 		assertEquals(clientId, result.clientId());
+		assertEquals("Maria Brown", result.clientName());
 		assertEquals(address.getId(), result.addressId());
 		assertEquals("Rua das Flores, 10", result.address());
 		assertEquals(OrderStatus.RECEBIDO, result.status());

@@ -36,7 +36,8 @@ class ApiFlowIntegrationTests {
 
 		String adminToken = login("alex.green@example.com", "admin123");
 		String clientToken = login("maria.brown@example.com", "client123");
-		mockMvc.perform(get("/orders").header("Authorization", bearer(adminToken))).andExpect(status().isOk());
+		mockMvc.perform(get("/orders").header("Authorization", bearer(adminToken))).andExpect(status().isOk())
+				.andExpect(jsonPath("$.content[0].clientName").doesNotExist());
 		mockMvc.perform(get("/orders").header("Authorization", bearer(clientToken))).andExpect(status().isForbidden());
 		mockMvc.perform(get("/orders/mine").header("Authorization", bearer(clientToken))).andExpect(status().isOk());
 		mockMvc.perform(get("/orders/mine").header("Authorization", bearer(adminToken)))
@@ -64,10 +65,12 @@ class ApiFlowIntegrationTests {
 		String orderId = createOrder(clientToken, addressId, productId);
 		mockMvc.perform(get("/orders/{id}", orderId).header("Authorization", bearer(clientToken)))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.status").value("RECEBIDO"))
-				.andExpect(jsonPath("$.address").exists()).andExpect(jsonPath("$.items[0].quantity").value(2));
+				.andExpect(jsonPath("$.address").exists()).andExpect(jsonPath("$.items[0].quantity").value(2))
+				.andExpect(jsonPath("$.clientName").value("Maria Brown"));
 		mockMvc.perform(get("/orders/mine").header("Authorization", bearer(clientToken))).andExpect(status().isOk())
 				.andExpect(jsonPath("$.content[0].status").value("RECEBIDO"))
 				.andExpect(jsonPath("$.content[0].address").doesNotExist())
+				.andExpect(jsonPath("$.content[0].clientName").doesNotExist())
 				.andExpect(jsonPath("$.content[0].items").doesNotExist());
 		mockMvc.perform(get("/orders/{id}", orderId).header("Authorization", bearer(adminToken)))
 				.andExpect(status().isOk());
@@ -118,6 +121,15 @@ class ApiFlowIntegrationTests {
 				post("/orders").header("Authorization", bearer(clientToken)).contentType(MediaType.APPLICATION_JSON)
 						.content("{\"addressId\":\"0ddcb601-fbd4-4947-8658-2159184ed963\",\"items\":[]}"))
 				.andExpect(status().isBadRequest());
+	}
+
+	@Test
+	void frameworkErrorsKeepTheirHttpStatus() throws Exception {
+		String adminToken = login("alex.green@example.com", "admin123");
+		mockMvc.perform(get("/missing-route").header("Authorization", bearer(adminToken)))
+				.andExpect(status().isNotFound()).andExpect(jsonPath("$.status").value(404));
+		mockMvc.perform(post("/product").header("Authorization", bearer(adminToken)))
+				.andExpect(status().isMethodNotAllowed()).andExpect(jsonPath("$.status").value(405));
 	}
 
 	private String createOrder(String token, String addressId, String productId) throws Exception {

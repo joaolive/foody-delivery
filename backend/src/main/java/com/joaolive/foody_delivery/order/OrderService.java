@@ -9,6 +9,7 @@ import com.joaolive.foody_delivery.order.dto.OrderResponse;
 import com.joaolive.foody_delivery.order.dto.OrderSummaryResponse;
 import com.joaolive.foody_delivery.product.Product;
 import com.joaolive.foody_delivery.product.ProductRepository;
+import com.joaolive.foody_delivery.user.UserService;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,12 +21,14 @@ public class OrderService {
 	private final OrderRepository orderRepository;
 	private final ProductRepository productRepository;
 	private final AddressRepository addressRepository;
+	private final UserService userService;
 
 	public OrderService(OrderRepository orderRepository, ProductRepository productRepository,
-			AddressRepository addressRepository) {
+			AddressRepository addressRepository, UserService userService) {
 		this.orderRepository = orderRepository;
 		this.productRepository = productRepository;
 		this.addressRepository = addressRepository;
+		this.userService = userService;
 	}
 
 	@Transactional
@@ -38,7 +41,8 @@ public class OrderService {
 					.orElseThrow(() -> new ResourceNotFoundException("Product not found: " + item.productId()));
 			order.addItem(product.getId(), product.getPrice(), item.quantity());
 		}
-		return OrderResponse.fromEntity(orderRepository.saveAndFlush(order), address.getAddress());
+		return OrderResponse.fromEntity(orderRepository.saveAndFlush(order), address.getAddress(),
+				userService.findNameById(clientId));
 	}
 
 	@Transactional(readOnly = true)
@@ -53,8 +57,7 @@ public class OrderService {
 
 	@Transactional(readOnly = true)
 	public OrderResponse findOrderById(UUID orderId, UUID userId, boolean canViewAllOrders) {
-		Order order = orderRepository.findById(orderId)
-				.orElseThrow(() -> new ResourceNotFoundException("Order not found: " + orderId));
+		Order order = requireOrder(orderId);
 		if (!canViewAllOrders && !order.getClientId().equals(userId)) {
 			throw new ResourceNotFoundException("Order not found: " + orderId);
 		}
@@ -63,16 +66,14 @@ public class OrderService {
 
 	@Transactional
 	public OrderResponse updateOrderStatus(UUID orderId, OrderStatus status) {
-		Order order = orderRepository.findById(orderId)
-				.orElseThrow(() -> new ResourceNotFoundException("Order not found: " + orderId));
+		Order order = requireOrder(orderId);
 		order.changeStatus(status);
 		return toResponse(orderRepository.saveAndFlush(order));
 	}
 
 	@Transactional
 	public OrderResponse cancelOwnOrder(UUID orderId, UUID clientId) {
-		Order order = orderRepository.findById(orderId)
-				.orElseThrow(() -> new ResourceNotFoundException("Order not found: " + orderId));
+		Order order = requireOrder(orderId);
 		if (!order.getClientId().equals(clientId)) {
 			throw new ResourceNotFoundException("Order not found: " + orderId);
 		}
@@ -86,6 +87,11 @@ public class OrderService {
 	private OrderResponse toResponse(Order order) {
 		Address address = addressRepository.findById(order.getAddressId())
 				.orElseThrow(() -> new ResourceNotFoundException("Address not found: " + order.getAddressId()));
-		return OrderResponse.fromEntity(order, address.getAddress());
+		return OrderResponse.fromEntity(order, address.getAddress(), userService.findNameById(order.getClientId()));
+	}
+
+	private Order requireOrder(UUID orderId) {
+		return orderRepository.findById(orderId)
+				.orElseThrow(() -> new ResourceNotFoundException("Order not found: " + orderId));
 	}
 }

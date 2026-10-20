@@ -23,7 +23,11 @@ import {
   nextOrderStatuses,
   orderStatusLabels,
 } from "@/features/orders/lib/order-status";
-import type { OrderStatus, OrderSummary } from "@/features/orders/types/order";
+import type {
+  Order,
+  OrderStatus,
+  OrderSummary,
+} from "@/features/orders/types/order";
 import { formatDate } from "@/lib/format";
 
 type AdminOrderCardProps = {
@@ -31,6 +35,7 @@ type AdminOrderCardProps = {
   pending: boolean;
   actionsDisabled: boolean;
   linkTitle?: boolean;
+  clientName?: Order["clientName"];
   error?: string;
   onStatusChange: (order: OrderSummary, status: OrderStatus) => void;
 };
@@ -40,6 +45,7 @@ export function AdminOrderCard({
   pending,
   actionsDisabled,
   linkTitle = true,
+  clientName,
   error,
   onStatusChange,
 }: AdminOrderCardProps) {
@@ -82,16 +88,20 @@ export function AdminOrderCard({
           </Link>
         )}
       </CardHeader>
-      <CardContent className="space-y-3 text-sm">
-        <p className="text-xs text-muted-foreground">
-          Cliente #{order.clientId.slice(0, 8).toUpperCase()}
-        </p>
-        {error && (
-          <p role="alert" className="text-xs text-destructive">
-            {error}
-          </p>
-        )}
-      </CardContent>
+      {(clientName || error) && (
+        <CardContent className="space-y-3 text-sm">
+          {clientName && (
+            <p className="text-xs text-muted-foreground">
+              Cliente {clientName}
+            </p>
+          )}
+          {error && (
+            <p role="alert" className="text-xs text-destructive">
+              {error}
+            </p>
+          )}
+        </CardContent>
+      )}
       <CardFooter className="flex-col items-stretch gap-3 bg-muted/20">
         <div className="flex items-center justify-between gap-2">
           <OrderStatusBadge status={order.status} />
