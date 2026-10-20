@@ -4,11 +4,13 @@ import com.joaolive.foody_delivery.auth.web.InvalidUserIdentityException;
 import com.joaolive.foody_delivery.auth.InvalidCredentialsException;
 import com.joaolive.foody_delivery.order.InvalidOrderStatusTransitionException;
 import com.joaolive.foody_delivery.user.EmailAlreadyExistsException;
+import jakarta.persistence.OptimisticLockException;
 import java.net.URI;
 import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -64,6 +66,15 @@ public class GlobalExceptionHandler {
 	public ProblemDetail handleInvalidOrderStatusTransition(InvalidOrderStatusTransitionException ex) {
 		ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
 		problemDetail.setTitle("Invalid Order Status Transition");
+		problemDetail.setProperty("timestamp", Instant.now());
+		return problemDetail;
+	}
+
+	@ExceptionHandler({OptimisticLockException.class, OptimisticLockingFailureException.class})
+	public ProblemDetail handleOptimisticLockConflict(Exception ex) {
+		ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT,
+				"Order changed while it was being updated. Refresh and try again.");
+		problemDetail.setTitle("Order Update Conflict");
 		problemDetail.setProperty("timestamp", Instant.now());
 		return problemDetail;
 	}

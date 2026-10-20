@@ -1,9 +1,9 @@
 package com.joaolive.foody_delivery.order;
 
 public enum OrderStatus {
-	RECEIVED,
-	PREPARING,
-	OUT_FOR_DELIVERY,
-	DELIVERED,
-	CANCELED
+	RECEBIDO,
+	EM_PREPARO,
+	SAIU_PARA_ENTREGA,
+	ENTREGUE,
+	CANCELADO
 }

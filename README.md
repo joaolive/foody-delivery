@@ -35,15 +35,15 @@ Aplicação full-stack de pedidos de comida desenvolvida para um desafio de vaga
 | `PATCH /orders/{id}/cancel`                | Cliente dono          | Cancelar pedido elegível               |
 | `GET /orders`, `PATCH /orders/{id}/status` | Admin                 | Listagem geral e atualização de status |
 
-`POST /orders` recebe o identificador de um endereço salvo (`addressId`) e uma lista de `{productId, quantity}`. O backend identifica o cliente pelo JWT e usa o preço atual de cada produto. Os status da API são apresentados na interface assim:
+`POST /orders` recebe o identificador de um endereço salvo (`addressId`) e uma lista de `{productId, quantity}`. O backend identifica o cliente pelo JWT e usa o preço atual de cada produto. As listagens retornam dados resumidos do pedido; `GET /orders/{id}` retorna endereço e itens. Os status da API são apresentados na interface assim:
 
-| API                | Interface         |
-| ------------------ | ----------------- |
-| `RECEIVED`         | Recebido          |
-| `PREPARING`        | Em preparo        |
-| `OUT_FOR_DELIVERY` | Saiu para entrega |
-| `DELIVERED`        | Entregue          |
-| `CANCELED`         | Cancelado         |
+| API                 | Interface         |
+| ------------------- | ----------------- |
+| `RECEBIDO`          | Recebido          |
+| `EM_PREPARO`        | Em preparo        |
+| `SAIU_PARA_ENTREGA` | Saiu para entrega |
+| `ENTREGUE`          | Entregue          |
+| `CANCELADO`         | Cancelado         |
 
 ---
 

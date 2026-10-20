@@ -63,7 +63,12 @@ class ApiFlowIntegrationTests {
 
 		String orderId = createOrder(clientToken, addressId, productId);
 		mockMvc.perform(get("/orders/{id}", orderId).header("Authorization", bearer(clientToken)))
-				.andExpect(status().isOk()).andExpect(jsonPath("$.status").value("RECEIVED"));
+				.andExpect(status().isOk()).andExpect(jsonPath("$.status").value("RECEBIDO"))
+				.andExpect(jsonPath("$.address").exists()).andExpect(jsonPath("$.items[0].quantity").value(2));
+		mockMvc.perform(get("/orders/mine").header("Authorization", bearer(clientToken))).andExpect(status().isOk())
+				.andExpect(jsonPath("$.content[0].status").value("RECEBIDO"))
+				.andExpect(jsonPath("$.content[0].address").doesNotExist())
+				.andExpect(jsonPath("$.content[0].items").doesNotExist());
 		mockMvc.perform(get("/orders/{id}", orderId).header("Authorization", bearer(adminToken)))
 				.andExpect(status().isOk());
 
@@ -81,19 +86,19 @@ class ApiFlowIntegrationTests {
 				.andExpect(status().isNotFound());
 
 		mockMvc.perform(patch("/orders/{id}/status", orderId).header("Authorization", bearer(adminToken))
-				.contentType(MediaType.APPLICATION_JSON).content("{\"status\":\"PREPARING\"}"))
+				.contentType(MediaType.APPLICATION_JSON).content("{\"status\":\"EM_PREPARO\"}"))
 				.andExpect(status().isOk());
 		mockMvc.perform(patch("/orders/{id}/status", orderId).header("Authorization", bearer(adminToken))
-				.contentType(MediaType.APPLICATION_JSON).content("{\"status\":\"DELIVERED\"}"))
+				.contentType(MediaType.APPLICATION_JSON).content("{\"status\":\"ENTREGUE\"}"))
 				.andExpect(status().isConflict());
 		mockMvc.perform(patch("/orders/{id}/cancel", orderId).header("Authorization", bearer(clientToken)))
-				.andExpect(status().isOk()).andExpect(jsonPath("$.status").value("CANCELED"));
+				.andExpect(status().isOk()).andExpect(jsonPath("$.status").value("CANCELADO"));
 		mockMvc.perform(patch("/orders/{id}/status", orderId).header("Authorization", bearer(adminToken))
-				.contentType(MediaType.APPLICATION_JSON).content("{\"status\":\"PREPARING\"}"))
+				.contentType(MediaType.APPLICATION_JSON).content("{\"status\":\"EM_PREPARO\"}"))
 				.andExpect(status().isConflict());
 
 		String deliveredOrderId = createOrder(clientToken, addressId, productId);
-		for (String nextStatus : new String[]{"PREPARING", "OUT_FOR_DELIVERY", "DELIVERED"}) {
+		for (String nextStatus : new String[]{"EM_PREPARO", "SAIU_PARA_ENTREGA", "ENTREGUE"}) {
 			mockMvc.perform(patch("/orders/{id}/status", deliveredOrderId).header("Authorization", bearer(adminToken))
 					.contentType(MediaType.APPLICATION_JSON).content("{\"status\":\"" + nextStatus + "\"}"))
 					.andExpect(status().isOk()).andExpect(jsonPath("$.status").value(nextStatus));
@@ -119,7 +124,7 @@ class ApiFlowIntegrationTests {
 		String body = mockMvc
 				.perform(post("/orders").header("Authorization", bearer(token)).contentType(MediaType.APPLICATION_JSON)
 						.content(orderPayload(addressId, productId)))
-				.andExpect(status().isCreated()).andExpect(jsonPath("$.status").value("RECEIVED"))
+				.andExpect(status().isCreated()).andExpect(jsonPath("$.status").value("RECEBIDO"))
 				.andExpect(jsonPath("$.items[0].quantity").value(2)).andReturn().getResponse().getContentAsString();
 		return responseJson(body).get("id").asText();
 	}

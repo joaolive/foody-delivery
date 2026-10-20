@@ -4,14 +4,14 @@ import {
   orderStatusDotClasses,
   orderStatusLabels,
 } from "@/features/orders/lib/order-status";
-import type { Order, OrderStatus } from "@/features/orders/types/order";
+import type { OrderStatus, OrderSummary } from "@/features/orders/types/order";
 
 type OrderColumnProps = {
   status: OrderStatus;
-  orders: Order[];
+  orders: OrderSummary[];
   pendingId: string | null;
   actionErrors: Record<string, string>;
-  onStatusChange: (order: Order, status: OrderStatus) => void;
+  onStatusChange: (order: OrderSummary, status: OrderStatus) => void;
 };
 
 export function OrderColumn({

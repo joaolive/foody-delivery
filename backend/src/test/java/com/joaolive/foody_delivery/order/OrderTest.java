@@ -12,14 +12,14 @@ class OrderTest {
 	void statusFollowsTheDeliverySequence() {
 		Order order = new Order(UUID.randomUUID(), UUID.randomUUID());
 
-		assertThrows(InvalidOrderStatusTransitionException.class, () -> order.changeStatus(OrderStatus.DELIVERED));
-		assertEquals(OrderStatus.RECEIVED, order.getStatus());
+		assertThrows(InvalidOrderStatusTransitionException.class, () -> order.changeStatus(OrderStatus.ENTREGUE));
+		assertEquals(OrderStatus.RECEBIDO, order.getStatus());
 
-		order.changeStatus(OrderStatus.PREPARING);
-		order.changeStatus(OrderStatus.OUT_FOR_DELIVERY);
-		order.changeStatus(OrderStatus.DELIVERED);
-		assertEquals(OrderStatus.DELIVERED, order.getStatus());
-		assertThrows(InvalidOrderStatusTransitionException.class, () -> order.changeStatus(OrderStatus.CANCELED));
+		order.changeStatus(OrderStatus.EM_PREPARO);
+		order.changeStatus(OrderStatus.SAIU_PARA_ENTREGA);
+		order.changeStatus(OrderStatus.ENTREGUE);
+		assertEquals(OrderStatus.ENTREGUE, order.getStatus());
+		assertThrows(InvalidOrderStatusTransitionException.class, () -> order.changeStatus(OrderStatus.CANCELADO));
 	}
 
 	@Test

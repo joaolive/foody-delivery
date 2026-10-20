@@ -12,7 +12,7 @@ import {
   cancelOwnOrder,
   fetchMyOrders,
 } from "@/features/orders/services/order-service";
-import type { Order } from "@/features/orders/types/order";
+import type { OrderSummary } from "@/features/orders/types/order";
 import { usePaginatedList } from "@/hooks/use-paginated-list";
 import { ApiError } from "@/lib/api-client";
 
@@ -29,13 +29,15 @@ export function OrdersPage() {
     retry,
     reload,
   } = usePaginatedList(fetchMyOrders);
-  const [changedOrders, setChangedOrders] = useState<Record<string, Order>>({});
+  const [changedOrders, setChangedOrders] = useState<
+    Record<string, OrderSummary>
+  >({});
   const [actionErrors, setActionErrors] = useState<Record<string, string>>({});
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [announcement, setAnnouncement] = useState("");
   const orders = loadedOrders.map((order) => changedOrders[order.id] ?? order);
 
-  async function cancelOrder(order: Order) {
+  async function cancelOrder(order: OrderSummary) {
     if (pendingId) return;
     setPendingId(order.id);
     setActionErrors((current) => ({ ...current, [order.id]: "" }));

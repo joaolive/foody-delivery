@@ -1,5 +1,5 @@
 export type OrderStatus =
-  "RECEIVED" | "PREPARING" | "OUT_FOR_DELIVERY" | "DELIVERED" | "CANCELED";
+  "RECEBIDO" | "EM_PREPARO" | "SAIU_PARA_ENTREGA" | "ENTREGUE" | "CANCELADO";
 
 export type OrderItem = {
   productId: string;
@@ -7,14 +7,17 @@ export type OrderItem = {
   quantity: number;
 };
 
-export type Order = {
+export type OrderSummary = {
   id: string;
   clientId: string;
-  addressId: string;
-  address: string;
   status: OrderStatus;
   createdAt: string;
   updatedAt: string | null;
+};
+
+export type Order = OrderSummary & {
+  addressId: string;
+  address: string;
   items: OrderItem[];
 };
 

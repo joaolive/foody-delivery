@@ -44,7 +44,7 @@ class OrderServiceTest {
 		assertEquals(clientId, result.clientId());
 		assertEquals(address.getId(), result.addressId());
 		assertEquals("Rua das Flores, 10", result.address());
-		assertEquals(OrderStatus.RECEIVED, result.status());
+		assertEquals(OrderStatus.RECEBIDO, result.status());
 		assertEquals(new BigDecimal("29.90"), result.items().getFirst().unitPrice());
 		assertEquals(2, result.items().getFirst().quantity());
 		verify(addressRepository).findByIdAndUserId(address.getId(), clientId);

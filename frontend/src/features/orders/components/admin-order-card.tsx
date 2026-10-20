@@ -1,4 +1,4 @@
-import { ChevronDown, MapPin } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { Link } from "react-router";
 
 import { buttonVariants } from "@/components/ui/button-variants";
@@ -20,23 +20,19 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { OrderStatusBadge } from "@/features/orders/components/order-status-badge";
 import {
-  orderItemCount,
-  orderTotal,
-} from "@/features/orders/lib/order-summary";
-import {
   nextOrderStatuses,
   orderStatusLabels,
 } from "@/features/orders/lib/order-status";
-import type { Order, OrderStatus } from "@/features/orders/types/order";
-import { formatCurrency, formatDate } from "@/lib/format";
+import type { OrderStatus, OrderSummary } from "@/features/orders/types/order";
+import { formatDate } from "@/lib/format";
 
 type AdminOrderCardProps = {
-  order: Order;
+  order: OrderSummary;
   pending: boolean;
   actionsDisabled: boolean;
   linkTitle?: boolean;
   error?: string;
-  onStatusChange: (order: Order, status: OrderStatus) => void;
+  onStatusChange: (order: OrderSummary, status: OrderStatus) => void;
 };
 
 export function AdminOrderCard({
@@ -48,7 +44,6 @@ export function AdminOrderCard({
   onStatusChange,
 }: AdminOrderCardProps) {
   const transitions = nextOrderStatuses[order.status];
-  const itemCount = orderItemCount(order);
 
   return (
     <Card
@@ -78,31 +73,19 @@ export function AdminOrderCard({
         <CardDescription className="text-xs">
           Criado em {formatDate(order.createdAt)}
         </CardDescription>
+        {linkTitle && (
+          <Link
+            to={`/admin/orders/${order.id}`}
+            className="text-xs font-medium text-primary underline underline-offset-2"
+          >
+            Ver detalhes
+          </Link>
+        )}
       </CardHeader>
       <CardContent className="space-y-3 text-sm">
-        <div className="flex items-start gap-2 rounded-lg bg-muted/50 p-2.5">
-          <MapPin
-            aria-hidden="true"
-            className="mt-0.5 size-3.5 shrink-0 text-primary"
-          />
-          <div className="min-w-0 space-y-1">
-            <p className="text-xs font-medium text-muted-foreground">
-              Entrega em
-            </p>
-            <p className="leading-relaxed break-words">{order.address}</p>
-          </div>
-        </div>
         <p className="text-xs text-muted-foreground">
           Cliente #{order.clientId.slice(0, 8).toUpperCase()}
         </p>
-        <div className="flex items-end justify-between gap-2 border-t pt-3">
-          <p className="text-xs text-muted-foreground">
-            {itemCount} {itemCount === 1 ? "item" : "itens"}
-          </p>
-          <p className="font-bold text-primary tabular-nums">
-            {formatCurrency(orderTotal(order))}
-          </p>
-        </div>
         {error && (
           <p role="alert" className="text-xs text-destructive">
             {error}
@@ -137,7 +120,7 @@ export function AdminOrderCard({
                 {transitions.map((status) => (
                   <DropdownMenuItem
                     key={status}
-                    variant={status === "CANCELED" ? "destructive" : "default"}
+                    variant={status === "CANCELADO" ? "destructive" : "default"}
                     onClick={() => onStatusChange(order, status)}
                   >
                     {orderStatusLabels[status]}

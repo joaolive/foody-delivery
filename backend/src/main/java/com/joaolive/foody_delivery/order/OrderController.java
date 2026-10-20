@@ -4,6 +4,7 @@ import com.joaolive.foody_delivery.auth.web.CurrentUser;
 import com.joaolive.foody_delivery.auth.web.UserContext;
 import com.joaolive.foody_delivery.order.dto.CreateOrderRequest;
 import com.joaolive.foody_delivery.order.dto.OrderResponse;
+import com.joaolive.foody_delivery.order.dto.OrderSummaryResponse;
 import com.joaolive.foody_delivery.order.dto.UpdateOrderStatusRequest;
 import jakarta.validation.Valid;
 import java.net.URI;
@@ -45,14 +46,14 @@ public class OrderController {
 
 	@PreAuthorize("hasRole('CLIENT')")
 	@GetMapping("/mine")
-	public Page<OrderResponse> findOrdersForUser(@CurrentUser UserContext user,
+	public Page<OrderSummaryResponse> findOrdersForUser(@CurrentUser UserContext user,
 			@PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 		return orderService.findOrdersForUser(user.id(), pageable);
 	}
 
 	@PreAuthorize("hasRole('ADMIN')")
 	@GetMapping
-	public Page<OrderResponse> findAllOrders(@RequestParam(required = false) UUID clientId,
+	public Page<OrderSummaryResponse> findAllOrders(@RequestParam(required = false) UUID clientId,
 			@PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 		return orderService.findAllOrders(clientId, pageable);
 	}

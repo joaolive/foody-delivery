@@ -11,6 +11,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.HashSet;
@@ -36,6 +37,9 @@ public class Order {
 
 	@Enumerated(EnumType.STRING)
 	private OrderStatus status;
+	@Version
+	@Column(nullable = false)
+	private long version;
 
 	@Column(name = "created_at")
 	private Instant createdAt;
@@ -55,7 +59,7 @@ public class Order {
 		this.id = UUID.randomUUID();
 		this.clientId = clientId;
 		this.addressId = addressId;
-		this.status = OrderStatus.RECEIVED;
+		this.status = OrderStatus.RECEBIDO;
 	}
 
 	public Set<OrderItem> getItems() {
@@ -82,10 +86,10 @@ public class Order {
 			return;
 		}
 		boolean allowed = switch (this.status) {
-			case RECEIVED -> status == OrderStatus.PREPARING || status == OrderStatus.CANCELED;
-			case PREPARING -> status == OrderStatus.OUT_FOR_DELIVERY || status == OrderStatus.CANCELED;
-			case OUT_FOR_DELIVERY -> status == OrderStatus.DELIVERED || status == OrderStatus.CANCELED;
-			case DELIVERED, CANCELED -> false;
+			case RECEBIDO -> status == OrderStatus.EM_PREPARO || status == OrderStatus.CANCELADO;
+			case EM_PREPARO -> status == OrderStatus.SAIU_PARA_ENTREGA || status == OrderStatus.CANCELADO;
+			case SAIU_PARA_ENTREGA -> status == OrderStatus.ENTREGUE || status == OrderStatus.CANCELADO;
+			case ENTREGUE, CANCELADO -> false;
 		};
 		if (!allowed) {
 			throw new InvalidOrderStatusTransitionException(this.status, status);

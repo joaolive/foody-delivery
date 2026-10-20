@@ -13,7 +13,7 @@ import {
   fetchAllOrders,
   updateOrderStatus,
 } from "@/features/orders/services/order-service";
-import type { Order, OrderStatus } from "@/features/orders/types/order";
+import type { OrderStatus, OrderSummary } from "@/features/orders/types/order";
 import { usePaginatedList } from "@/hooks/use-paginated-list";
 import { ApiError } from "@/lib/api-client";
 
@@ -28,13 +28,15 @@ export function AdminOrdersPage() {
     retry,
     reload,
   } = usePaginatedList(fetchAllOrders);
-  const [changedOrders, setChangedOrders] = useState<Record<string, Order>>({});
+  const [changedOrders, setChangedOrders] = useState<
+    Record<string, OrderSummary>
+  >({});
   const [actionErrors, setActionErrors] = useState<Record<string, string>>({});
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [announcement, setAnnouncement] = useState("");
   const orders = loadedOrders.map((order) => changedOrders[order.id] ?? order);
 
-  async function changeStatus(order: Order, status: OrderStatus) {
+  async function changeStatus(order: OrderSummary, status: OrderStatus) {
     if (pendingId) return;
     setPendingId(order.id);
     setActionErrors((current) => ({ ...current, [order.id]: "" }));

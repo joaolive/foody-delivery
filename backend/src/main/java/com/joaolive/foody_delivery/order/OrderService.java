@@ -6,6 +6,7 @@ import com.joaolive.foody_delivery.common.ResourceNotFoundException;
 import com.joaolive.foody_delivery.order.dto.CreateOrderItemRequest;
 import com.joaolive.foody_delivery.order.dto.CreateOrderRequest;
 import com.joaolive.foody_delivery.order.dto.OrderResponse;
+import com.joaolive.foody_delivery.order.dto.OrderSummaryResponse;
 import com.joaolive.foody_delivery.product.Product;
 import com.joaolive.foody_delivery.product.ProductRepository;
 import java.util.UUID;
@@ -41,13 +42,13 @@ public class OrderService {
 	}
 
 	@Transactional(readOnly = true)
-	public Page<OrderResponse> findOrdersForUser(UUID userId, Pageable pageable) {
-		return orderRepository.findByClientId(userId, pageable).map(this::toResponse);
+	public Page<OrderSummaryResponse> findOrdersForUser(UUID userId, Pageable pageable) {
+		return orderRepository.findByClientId(userId, pageable).map(OrderSummaryResponse::fromEntity);
 	}
 
 	@Transactional(readOnly = true)
-	public Page<OrderResponse> findAllOrders(UUID clientId, Pageable pageable) {
-		return orderRepository.findAllOrders(clientId, pageable).map(this::toResponse);
+	public Page<OrderSummaryResponse> findAllOrders(UUID clientId, Pageable pageable) {
+		return orderRepository.findAllOrders(clientId, pageable).map(OrderSummaryResponse::fromEntity);
 	}
 
 	@Transactional(readOnly = true)
@@ -75,10 +76,10 @@ public class OrderService {
 		if (!order.getClientId().equals(clientId)) {
 			throw new ResourceNotFoundException("Order not found: " + orderId);
 		}
-		if (order.getStatus() != OrderStatus.RECEIVED && order.getStatus() != OrderStatus.PREPARING) {
-			throw new InvalidOrderStatusTransitionException(order.getStatus(), OrderStatus.CANCELED);
+		if (order.getStatus() != OrderStatus.RECEBIDO && order.getStatus() != OrderStatus.EM_PREPARO) {
+			throw new InvalidOrderStatusTransitionException(order.getStatus(), OrderStatus.CANCELADO);
 		}
-		order.changeStatus(OrderStatus.CANCELED);
+		order.changeStatus(OrderStatus.CANCELADO);
 		return toResponse(orderRepository.saveAndFlush(order));
 	}
 

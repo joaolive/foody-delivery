@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ArrowLeft, RefreshCw } from "lucide-react";
+import { ArrowLeft, MapPin, RefreshCw } from "lucide-react";
 import { Link, useParams } from "react-router";
 
 import { PageHeader } from "@/components/common/page-header";
@@ -25,7 +25,7 @@ import {
   orderItemCount,
   orderTotal,
 } from "@/features/orders/lib/order-summary";
-import type { Order, OrderStatus } from "@/features/orders/types/order";
+import type { OrderStatus, OrderSummary } from "@/features/orders/types/order";
 import { ProductImage } from "@/features/products/components/product-image";
 import { fetchProductById } from "@/features/products/services/product-service";
 import type { Product } from "@/features/products/types/product";
@@ -72,7 +72,7 @@ export function OrderDetailPage() {
     return () => controller.abort();
   }, [order]);
 
-  async function changeStatus(currentOrder: Order, status: OrderStatus) {
+  async function changeStatus(currentOrder: OrderSummary, status: OrderStatus) {
     if (pending) return;
     setPending(true);
     setActionError("");
@@ -93,7 +93,7 @@ export function OrderDetailPage() {
     }
   }
 
-  async function cancelOrder(currentOrder: Order) {
+  async function cancelOrder(currentOrder: OrderSummary) {
     if (pending) return;
     setPending(true);
     setActionError("");
@@ -223,6 +223,20 @@ export function OrderDetailPage() {
                     <strong className="text-xl text-primary tabular-nums">
                       {formatCurrency(orderTotal(order))}
                     </strong>
+                  </div>
+                  <div className="flex items-start gap-3 border-t pt-4">
+                    <MapPin
+                      aria-hidden="true"
+                      className="mt-0.5 size-4 shrink-0 text-primary"
+                    />
+                    <div>
+                      <p className="text-sm font-semibold">
+                        Endereço de entrega
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {order.address}
+                      </p>
+                    </div>
                   </div>
                 </CardContent>
               </Card>

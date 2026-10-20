@@ -1,19 +1,23 @@
 import type {
   CreateOrderData,
   Order,
+  OrderSummary,
   OrderStatus,
 } from "@/features/orders/types/order";
 import { apiRequest } from "@/lib/api-client";
 import type { PageResult } from "@/lib/pagination";
 
 export function fetchMyOrders(page: number, signal: AbortSignal) {
-  return apiRequest<PageResult<Order>>(`/orders/mine?page=${page}&size=20`, {
-    signal,
-  });
+  return apiRequest<PageResult<OrderSummary>>(
+    `/orders/mine?page=${page}&size=20`,
+    {
+      signal,
+    },
+  );
 }
 
 export function fetchAllOrders(page: number, signal: AbortSignal) {
-  return apiRequest<PageResult<Order>>(`/orders?page=${page}&size=20`, {
+  return apiRequest<PageResult<OrderSummary>>(`/orders?page=${page}&size=20`, {
     signal,
   });
 }
