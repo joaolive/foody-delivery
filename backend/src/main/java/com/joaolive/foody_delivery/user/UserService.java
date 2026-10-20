@@ -23,7 +23,7 @@ public class UserService {
 	public UserResponse createUser(CreateUserRequest request) {
 		String email = request.email().strip().toLowerCase(Locale.ROOT);
 		if (repository.existsByEmailIgnoreCase(email)) {
-			throw new EmailAlreadyExistsException("Email already registered");
+			throw new EmailAlreadyExistsException();
 		}
 		String password = passwordEncoder.encode(request.password());
 		User entity = new User(request.name(), email, password);

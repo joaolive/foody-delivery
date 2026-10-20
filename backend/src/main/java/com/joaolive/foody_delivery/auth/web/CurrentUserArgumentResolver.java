@@ -34,10 +34,10 @@ public class CurrentUserArgumentResolver implements HandlerMethodArgumentResolve
 							.map(GrantedAuthority::getAuthority).collect(Collectors.toSet());
 					return new UserContext(UUID.fromString(userId), username, authorities);
 				} catch (IllegalArgumentException ex) {
-					throw new InvalidUserIdentityException("Invalid or missing user identity in request context");
+					throw new InvalidUserIdentityException();
 				}
 			}
 		}
-		throw new InvalidUserIdentityException("Invalid or missing user identity in request context");
+		throw new InvalidUserIdentityException();
 	}
 }
